@@ -83,7 +83,7 @@ function generateArtifacts () {
 	echo "##########################################################"
 	echo "#########  Generating Orderer Genesis block ##############"
 	echo "##########################################################"
-	export ORDERER_CFG_PATH=$PWD
+	export FABRIC_CFG_PATH=$PWD
 	./$os_arch/bin/configtxgen -profile OneOrgGenesis -outputBlock orderer.block
 	echo
 	echo
