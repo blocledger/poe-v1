@@ -5,12 +5,15 @@ hash so that its existence can be later proved through transaction queries.
 
 ## Requirements
 
-docker version...
+* Docker - v1.12 or higher
+* Docker Compose - v1.8 or higher
+* node - v6.9.5
+* Git client
 
 
 ## Installation
 
-`git clone https://github.com/blocledger/poe.git`
+`git clone https://github.com/blocledger/poe-alpha2.git poe`
 
 ```
 npm install -g gulp
@@ -103,18 +106,15 @@ ctrl-c the node application
 cd poe/test/fixures-V1
 ./network_setup.sh down
 
-cd poe/tmp/keyValStore_v1
-rm admin appUsers chaincodeID.* eric.vaughn*
-rm -r keys/
+rm -r poe/tmp/keyValStore_v1/
 ```
-> **Note:**  If additional users were created along with
-> eric.vaughn@blocledger.com delete them as well.
 
 ## Testing
 To run both the linter and code style checker run `gulp` with no parameters.
 
 To run testing that will generate transactions and exercise all of the server
 capabilities run `gulp test`.
+> **Note:**  The chaincode needs to be deployed before running the test.
 
 ## Debugging
 Turn additional debug prints with

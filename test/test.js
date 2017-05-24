@@ -9,9 +9,32 @@ var testTimeout = 15000;  //wait time in milliseconds before failing a test
 var hash1 = 'hash1-1234567890123456789012345678901234567890123456789012345678'
 var hash2 = 'hash2-1234567890123456789012345678901234567890123456789012345678'
 
+//Test adding a new user
+describe('Add new user test:', function() {
+  describe('/addUser POST', function() {
+    it('should return success from the POST call', function(done) {
+      this.timeout(testTimeout);
+      request
+      .post(url + '/addUser')
+      .send({userName: 'test@blocledger.com', userPw: 'abc', userPwRepeat: 'abc', userType: 'user'})
+      .end(function(err, res) {
+        if (err) {
+          // console.log(err);
+          assert.equal(res.status, 500, 'should receive a 500 status');
+          assert.equal(res.text, 'User name is already in use');
+        } else {
+          // console.log(res);
+          assert.property(res, 'status', 'reply should have status');
+          assert.equal(res.status, 200, 'should receive a 200 status');
+        }
+        done();
+      });
+    });
+  });
+});
+
 //testing the Application REST interface that uses the node SDK
 describe('Application REST interface', function() {
-
   describe('login user', function() {
     it('should login the test user', function(done) {
       request
@@ -33,12 +56,13 @@ describe('Application REST interface', function() {
       .post(url + '/addDoc')
       .send({hash: hash1, name: 'dummyFile1.txt', owner: 'Alice', hashType: 'sha256'})
       .end(function(err, res) {
+      // console.log(err);
       assert.isNull(err);
-      console.log(res.body);
+      // console.log(res.body);
       assert.isArray(res.body);
-      assert.property(res.body[0], 'status', 'reply should have result');
-      assert.isString(res.body[0].status, 'the status should be a string');
-      assert.equal(res.body[0].status, 'SUCCESS', 'the status should be a SUCCESS');
+      assert.property(res.body[0], 'state', 'reply should have a state member');
+      assert.isString(res.body[0].state, 'the state should be a string');
+      assert.equal(res.body[0].state, 'fulfilled', 'the state value should be fulfilled');
       done();
       });
     });
@@ -51,9 +75,9 @@ describe('Application REST interface', function() {
       assert.isNull(err);
       //console.log(res.body);
       assert.isArray(res.body);
-      assert.property(res.body[0], 'status', 'reply should have result');
-      assert.isString(res.body[0].status, 'the status should be a string');
-      assert.equal(res.body[0].status, 'SUCCESS', 'the status should be a SUCCESS');
+      assert.property(res.body[0], 'state', 'reply should have a state member');
+      assert.isString(res.body[0].state, 'the state should be a string');
+      assert.equal(res.body[0].state, 'fulfilled', 'the state value should be fulfilled');
       done();
       });
     });
@@ -70,7 +94,7 @@ describe('Application REST interface', function() {
         assert.property(res.body, hash1, 'hash1 should be in the list');
         var doc = JSON.parse(res.body[hash1]);
         assert.property(doc, 'Owner', 'Document owner should be present');
-        assert.equal(doc.Owner, 'Alice', 'the owner should be Alice');
+        assert.equal(doc.Owner, 'test@blocledger.com', 'the owner should be test@blocledger.com');
         done();
       });
     });
@@ -85,9 +109,9 @@ describe('Application REST interface', function() {
         assert.isNull(err);
         //console.log(res.body);
         assert.isArray(res.body);
-        assert.property(res.body[0], 'status', 'reply should have result');
-        assert.isString(res.body[0].status, 'the status should be a string');
-        assert.equal(res.body[0].status, 'SUCCESS', 'the status should be a SUCCESS');
+        assert.property(res.body[0], 'state', 'reply should have a state member');
+        assert.isString(res.body[0].state, 'the state should be a string');
+        assert.equal(res.body[0].state, 'fulfilled', 'the state value should be fulfilled');
         done();
       });
     });
@@ -127,10 +151,10 @@ describe('Application REST interface', function() {
       .get(url + '/verifyDoc/' + 'abcd1234')
       .end(function(err, res) {
         // console.log(res);
-        assert.isNotNull(err);
-        assert.equal(res.status, 500, 'should receive a 500 status');
-        assert.property(res, 'text', 'response should have a text field');
-        assert.equal(res.text, 'Document not found', 'should return document not found');
+        assert.isNull(err);
+        assert.equal(res.status, 200, 'should receive a 200 status');
+        assert.property(res.body, 'Error', 'response should have a Error field');
+        assert.equal(res.body.Error, 'Document not found', 'should return document not found');
         done();
       });
     });
@@ -146,9 +170,9 @@ describe('Application REST interface', function() {
       assert.isNull(err);
       //console.log(res.body);
       assert.isArray(res.body);
-      assert.property(res.body[0], 'status', 'reply should have result');
-      assert.isString(res.body[0].status, 'the status should be a string');
-      assert.equal(res.body[0].status, 'SUCCESS', 'the status should be a SUCCESS');
+      assert.property(res.body[0], 'state', 'reply should have a state member');
+      assert.isString(res.body[0].state, 'the state should be a string');
+      assert.equal(res.body[0].state, 'fulfilled', 'the state value should be fulfilled');
       done();
       });
     });
@@ -161,9 +185,9 @@ describe('Application REST interface', function() {
       assert.isNull(err);
       //console.log(res.body);
       assert.isArray(res.body);
-      assert.property(res.body[0], 'status', 'reply should have result');
-      assert.isString(res.body[0].status, 'the status should be a string');
-      assert.equal(res.body[0].status, 'SUCCESS', 'the status should be a SUCCESS');
+      assert.property(res.body[0], 'state', 'reply should have a state member');
+      assert.isString(res.body[0].state, 'the state should be a string');
+      assert.equal(res.body[0].state, 'fulfilled', 'the state value should be fulfilled');
       done();
       });
     });
@@ -176,56 +200,6 @@ describe('Application REST interface', function() {
         //console.log(res.body);
         assert.notProperty(res.body, hash1, 'hash1 should not be in the list');
         assert.notProperty(res.body, hash2, 'hash2 should be not in the list');
-        done();
-      });
-    });
-  });
-});
-
-//Test adding a new user
-describe('Add new user test:', function() {
-  describe('/addUser POST', function() {
-    it('should return success from the POST call', function(done) {
-      this.timeout(testTimeout);
-      request
-      .post(url + '/addUser')
-      .send({userName: 'user1.test@blocledger.com'})
-      .end(function(err, res) {
-        assert.isNull(err);
-        // console.log(res.body);
-        assert.property(res.body, 'result', 'reply should have result');
-        assert.isString(res.body.result, 'the result should be a string');
-        done();
-      });
-    });
-  });
-  describe('/activeUser POST', function() {
-    it('should set the new user as the active user', function(done) {
-      this.timeout(testTimeout);
-      request
-      .post(url + '/activeUser')
-      .send({user: 'user1.test@blocledger.com'})
-      .end(function(err, res) {
-        assert.isNull(err);
-        // console.log(res.body);
-        assert.property(res.body, 'result', 'reply should have result');
-        assert.isString(res.body.result, 'the result should be a string');
-        done();
-      });
-    });
-  });
-  describe('/activeUser GET', function() {
-    it('should return the new user', function(done) {
-      this.timeout(testTimeout);
-      request
-      .get(url + '/activeUser')
-      .end(function(err, res) {
-        // console.log(res);
-        assert.isNull(err);
-        assert.equal(res.status, 200, 'should receive a 200 status');
-        // console.log(res.body);
-        assert.isString(res.body, 'the return should be a string');
-        assert.equal(res.body, 'user1.test@blocledger.com', 'the returned user should be user1.test@blocledger.com');
         done();
       });
     });
