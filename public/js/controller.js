@@ -97,7 +97,6 @@ var activeUser;
     };
   });
 
-
   myApp.directive('transactionAlerts', function() {
     return {
       templateUrl: 'templates/transactionAlerts.html'

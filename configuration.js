@@ -24,38 +24,35 @@ var path = require('path');
 // jscs:disable maximumLineLength
 
 var cred;
-var networkId;
-var channelId;
 
-  if (process.platform === 'darwin' || process.platform === 'linux') {
-    cred = require('./config-mac.json');
-  } else {
-    cred = require('./config-win.json');
-  }
-  for (let i = 0; i < cred.peers.length; i++) {
-    let data = fs.readFileSync(path.join(__dirname, cred.peers[i].tls_cacerts));
-    cred.peers[i].tls_cacerts = Buffer.from(data).toString();
-    cred.peers[i].common_name = cred.peers[i].name;
-  }
-  for (let i = 0; i < cred.orderers.length; i++) {
-    let data = fs.readFileSync(path.join(__dirname, cred.orderers[i].tls_cacerts));
-    cred.orderers[i].tls_cacerts = Buffer.from(data).toString();
-    cred.orderers[i].common_name = cred.orderers[i].name;
-  }
-  for (let i = 0; i < cred.cas.length; i++) {
-    let data = fs.readFileSync(path.join(__dirname, cred.cas[i].tls_cacerts));
-    cred.cas[i].tls_cacerts = Buffer.from(data).toString();
-    cred.cas[i].common_name = cred.cas[i].name;
-  }
+if (process.platform === 'darwin' || process.platform === 'linux') {
+  cred = require('./config-mac.json');
+} else {
+  cred = require('./config-win.json');
+}
+for (let i = 0; i < cred.peers.length; i++) {
+  let data = fs.readFileSync(path.join(__dirname, cred.peers[i].tls_cacerts));
+  cred.peers[i].tls_cacerts = Buffer.from(data).toString();
+  cred.peers[i].common_name = cred.peers[i].name;
+}
+for (let i = 0; i < cred.orderers.length; i++) {
+  let data = fs.readFileSync(path.join(__dirname, cred.orderers[i].tls_cacerts));
+  cred.orderers[i].tls_cacerts = Buffer.from(data).toString();
+  cred.orderers[i].common_name = cred.orderers[i].name;
+}
+for (let i = 0; i < cred.cas.length; i++) {
+  let data = fs.readFileSync(path.join(__dirname, cred.cas[i].tls_cacerts));
+  cred.cas[i].tls_cacerts = Buffer.from(data).toString();
+  cred.cas[i].common_name = cred.cas[i].name;
+}
 
-  networkId = cred.network_id;
-  channelId = 'mychannel';
+var networkId = cred.network_id;
+var channelId = 'mychannel';
 
 exports.cred = cred;
 exports.networkId = networkId;
 exports.channelId = channelId;
 exports.keyPath = path.join(__dirname, '/tmp/keyValStore_' + networkId, 'keys');
-
 
 // sdk retry count.  The number of times repeat the SDK query or invoke before failing.
 exports.retryCount = 1;

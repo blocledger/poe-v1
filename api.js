@@ -74,7 +74,7 @@ app.use(require('cookie-parser')());
 app.use(bodyparser.json());
 app.use(require('cookie-session')({
   name: 'session',
-  keys: ["A cookie secret"],
+  keys: ['A cookie secret'],
   maxAge: 24 * 60 * 60 * 1000,
 }));
 bodyparser.urlencoded({extended: true});
