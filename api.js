@@ -42,7 +42,6 @@ var init = require('./initialize.js');
 var sdkInterface = require('./sdkInterface');
 var poeRouter = require('./poeRouter.js'); // POE middleware to handle all of the POE REST endpoints
 var sha = require('js-sha256');
-var credentials = require('./credentials.js');
 
 var newUser = util.newUser;
 var PwStr = 'Pw!';
@@ -75,13 +74,10 @@ app.use(require('cookie-parser')());
 app.use(bodyparser.json());
 app.use(require('cookie-session')({
   name: 'session',
-  keys: [credentials.cookieSecret],
+  keys: ["A cookie secret"],
   maxAge: 24 * 60 * 60 * 1000,
 }));
 bodyparser.urlencoded({extended: true});
-app.use(require('express-session')({
-  secret: credentials.cookieSecret,
-}));
 
 app.use('/', poeRouter);  // handle the POE REST endpoint routes
 
