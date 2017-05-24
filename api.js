@@ -42,9 +42,6 @@ var init = require('./initialize.js');
 var sdkInterface = require('./sdkInterface');
 var poeRouter = require('./poeRouter.js'); // POE middleware to handle all of the POE REST endpoints
 var sha = require('js-sha256');
-var credentials = require('./credentials.js');
-var passport = require('passport');
-var FacebookStrategy = require('passport-facebook').Strategy;
 
 var newUser = util.newUser;
 var PwStr = 'Pw!';
@@ -77,36 +74,10 @@ app.use(require('cookie-parser')());
 app.use(bodyparser.json());
 app.use(require('cookie-session')({
   name: 'session',
-  keys: [credentials.cookieSecret],
+  keys: ["A cookie secret"],
   maxAge: 24 * 60 * 60 * 1000,
 }));
 bodyparser.urlencoded({extended: true});
-app.use(require('express-session')({
-  secret: credentials.cookieSecret,
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.use(new FacebookStrategy({
-    clientID: credentials.fbAppId,
-    clientSecret: credentials.fbAppSecret,
-    callbackURL: 'http://localhost:' + app.get('port') +
-      '/login/facebook/return',
-    profileFields: ['id', 'displayName', 'email'],
-  },
-  function(accessToken, refreshToken, profile, cb) {
-    // console.log('profile is ' + JSON.stringify(profile));
-    return cb(null, profile);
-  }
-));
-
-passport.serializeUser(function(user, cb) {
-  cb(null, user);
-});
-
-passport.deserializeUser(function(id, cb) {
-  cb(null, id);
-});
 
 app.use('/', poeRouter);  // handle the POE REST endpoint routes
 
@@ -234,42 +205,6 @@ app.post('/login', function(req, res) {
   res.status(200).send('success');
   return true;
 });
-
-app.get('/login/facebook',
-  function(req, res, next) {
-    var redirect = encodeURIComponent(req.query.redirect || '/');
-    passport.authenticate('facebook',
-    {
-      scope: ['email'],
-      callbackURL: 'http://localhost:' + app.get('port') +
-        '/login/facebook/return?redirect=' + redirect,
-      failureRedirect: '/login',
-      authType: 'reauthenticate',
-    })(req, res, next);
-  }
-);
-
-app.get('/login/facebook/return',
-  function(req, res, next) {
-    var url = 'http://localhost:' + app.get('port') +
-      '/login/facebook/return?redirect=' +
-      encodeURIComponent(req.query.redirect);
-    passport.authenticate('facebook', {callbackURL: url})(req, res, next);
-  },
-  function(req, res) {
-    if (!req.user) {
-      return res.status(500).send('Login failed');
-    }
-    var appUser = {userName: req.user._json.email,
-      pwHash: '', userType: 'user'};
-    newUser(appUser);
-    console.log('Set appUser: ' + appUser.userName);
-    req.session.appUser = appUser.userName;
-    GlobalAppUser[appUser.userName] = appUser;
-
-    res.redirect(req.query.redirect);
-  }
-);
 
 function writeUsers() {
   var users = [];
