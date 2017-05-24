@@ -7,7 +7,6 @@ passwd
 rd
 cscope.files
 cscope.out
-chaincode/src/github.com/chaincode/*.go
 test/fixtures-V1/channel.tx
 test/fixtures-V1/docker-compose.yamlt
 test/fixtures-V1/docker-compose.yaml
