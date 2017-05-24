@@ -5,7 +5,10 @@ hash so that its existence can be later proved through transaction queries.
 
 ## Requirements
 
-docker version...
+* Docker - v1.12 or higher
+* Docker Compose - v1.8 or higher
+* node - v6.9.5
+* Git client
 
 
 ## Installation
