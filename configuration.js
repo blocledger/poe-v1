@@ -56,3 +56,9 @@ exports.keyPath = path.join(__dirname, '/tmp/keyValStore_' + networkId, 'keys');
 
 // sdk retry count.  The number of times repeat the SDK query or invoke before failing.
 exports.retryCount = 1;
+
+var windows = false;
+if (process.platform.indexOf('win') !== -1) {
+  windows = true;
+}
+exports.windows = windows;

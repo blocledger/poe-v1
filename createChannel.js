@@ -183,8 +183,8 @@ HFC.newDefaultKeyValueStore({
     orderer: orderer
   };
   debug('new procedure for signing the config');
-  var config = client.extractChannelConfig(data);
-  var signature = client.signChannelConfig(config);
+  var channelConfig = client.extractChannelConfig(data);
+  var signature = client.signChannelConfig(channelConfig);
   var signatures = [];
   signatures.push(signature);
   signatures.push(signature);  // this second signature is from the sdk test code.  Appears to work around a problem somewhere
@@ -208,7 +208,7 @@ HFC.newDefaultKeyValueStore({
 
   let ehPromise = new Promise(function(resolve, reject) {
     let handle = setTimeout(function() {
-      eventhub.unregisterTxEvent(ehtxid);
+      if (!config.windows) {eventhub.unregisterTxEvent(ehtxid);}
       reject(new Error('Event hub timed out.'));
     }, 10000);
     debug('registering for the Tx event');
@@ -216,7 +216,7 @@ HFC.newDefaultKeyValueStore({
     // Setup event hug to listen for results
     eventhub.registerTxEvent(ehtxid, function(txid, code) {
       clearTimeout(handle);
-      eventhub.unregisterTxEvent(txid);
+      if (!config.windows) {eventhub.unregisterTxEvent(txid);}
 
       if (code !== 'VALID') {
         debug('Transaction failed event hub reported:', code);
@@ -232,7 +232,7 @@ HFC.newDefaultKeyValueStore({
   request = {
     name: 'mychannel',
     orderer: orderer,
-    config: config,
+    config: channelConfig,
     signatures: signatures,
     txId: txId,
     nonce: nonce
@@ -244,7 +244,7 @@ HFC.newDefaultKeyValueStore({
 .then(function(result) {
   debug('--------------------------------------------');
   debug('Channel created ', result);
-  eventhub.disconnect();
+  if (!config.windows) {eventhub.disconnect();}
 
   chain = client.newChain('mychannel');
   chain.addOrderer(orderer);
@@ -259,7 +259,7 @@ HFC.newDefaultKeyValueStore({
 }, function(err) {
   debug('Error creating channel, maybe it is already created, try building it');
   debug(err);
-  eventhub.disconnect();
+  if (!config.windows) {eventhub.disconnect();}
 
   chain = client.newChain('mychannel');
   chain.addOrderer(orderer);
