@@ -58,7 +58,7 @@ exports.keyPath = path.join(__dirname, '/tmp/keyValStore_' + networkId, 'keys');
 exports.retryCount = 1;
 
 var windows = false;
-if (process.platform.indexOf('win') !== -1) {
+if (process.platform.indexOf('win') === 0) {
   windows = true;
 }
 exports.windows = windows;
