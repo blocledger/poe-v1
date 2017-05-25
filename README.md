@@ -9,7 +9,8 @@ hash so that its existence can be later proved through transaction queries.
 * Docker Compose - v1.8 or higher
 * node - v6.9.5
 * Git client
-
+* Windows needs OpenSSL installed into C:/OpenSSL-Win64
+  * https://slproweb.com/download/Win64OpenSSL-1_0_2k.exe is a working package
 
 ## Installation
 
@@ -22,6 +23,16 @@ npm install -g bower
 npm install
 ```
 
+> **Windows note:** To avoid a problem with the windows style '\' during
+> the chaincode install resulting in the error:
+>
+> `Promise is rejected: Error: Illegal file detected in payload: "src\github.com\chaincode\poe_chaincode.go"`
+>
+> per FAB-3975,
+> add `.split('\\').join('/')` to the end of line 98 of
+> node_modules/fabric-client/lib/packager/Golang.js like this:
+>
+> `name: path.relative(goPath, entry.path).split('\\').join('/'),`
 
 ## Setting up a test blockchain using Docker
 
