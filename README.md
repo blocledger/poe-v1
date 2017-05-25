@@ -23,7 +23,7 @@ npm install -g bower
 npm install
 ```
 
-> **Windows note:** To avoid a problem with the windows style '\' during
+> **Windows note:** To avoid a problem with the windows style '\\' during
 > the chaincode install resulting in the error:
 >
 > `Promise is rejected: Error: Illegal file detected in payload: "src\github.com\chaincode\poe_chaincode.go"`
