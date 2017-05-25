@@ -1,6 +1,6 @@
 # Proof of Existence
 
-This project demonstrates using the Hyperledger blockchain to store a document
+This project demonstrates using the Hyperledger Fabric blockchain to store a document
 hash so that its existence can be later proved through transaction queries.
 
 ## Requirements
@@ -14,8 +14,9 @@ hash so that its existence can be later proved through transaction queries.
 
 ## Installation
 
-`git clone https://github.com/blocledger/poe-alpha2.git poe`
+`git clone https://github.com/ghaskins/hyperledger-fabric-alpha2-challenge.git`
 
+`cd hyperledger-fabric-alpha2-challenge/blocledger/poe`
 ```
 npm install -g gulp
 npm install -g mocha
@@ -61,7 +62,7 @@ docker tag 4ac07a26ca7a hyperledger/fabric-ccenv:latest
 Run the network setup script which will download the rest of the docker images,
 build docker-compose.yaml, create all certificates, and build the genesis block.
 ```
-cd poe/test/fixtures-V1
+cd test/fixtures-V1
 ./network_setup.sh up mychannel
 ```
 To check that the containers are running
@@ -100,12 +101,12 @@ After the chaincode has been installed documents can be added and verified.
 ### Stopping and restarting the network
 To stop the containers
 ```
-cd poe/test/fixures-V1
+cd test/fixures-V1
 docker-compose stop
 ```
 To start the previously created network
 ```
-cd poe/test/fixures-V1
+cd test/fixures-V1
 docker-compose up -d
 ```
 
@@ -114,10 +115,10 @@ Use this procedure to completely delete the network and clean up all of the file
 for a fresh start.
 ```
 ctrl-c the node application
-cd poe/test/fixures-V1
+cd test/fixures-V1
 ./network_setup.sh down
 
-rm -r poe/tmp/keyValStore_v1/
+rm -r tmp/keyValStore_v1/
 ```
 
 ## Testing
