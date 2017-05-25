@@ -1,7 +1,7 @@
 {
 		"orderers": [
 			{
-			"api_url": "grpcs://192.168.99.100:7050",
+			"api_url": "grpcs://localhost:7050",
 			"name": "orderer.blocledger.com",
 			"tls_cacerts": "./test/fixtures-V1/crypto-config/ordererOrganizations/blocledger.com/orderers/orderer.blocledger.com/msp/cacerts/ca.blocledger.com-cert.pem"
 			}
@@ -10,7 +10,7 @@
 			{
 			"name": "ca.blocledger.com",
 			"msp_id": "Org1MSP",
-			"api_url": "https://192.168.99.100:7054",
+			"api_url": "https://localhost:7054",
 			"tls_cacerts": "./test/fixtures-V1//crypto-config/peerOrganizations/org1.blocledger.com/ca/ca.org1.blocledger.com-cert.pem",
 			"users_clients": [
 					{
@@ -42,14 +42,14 @@
 		],
 		"peers": [
 			{
-				"api_url": "grpcs://192.168.99.100:7051",
-				"event_url": "grpcs://192.168.99.100:7053",
+				"api_url": "grpcs://localhost:7051",
+				"event_url": "grpcs://localhost:7053",
 				"name": "peer0.org1.blocledger.com",
 				"tls_cacerts": "./test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/peers/peer0.org1.blocledger.com/msp/cacerts/ca.org1.blocledger.com-cert.pem"
 			},
 			{
-				"api_url": "grpcs://192.168.99.100:7056",
-				"event_url": "grpcs://192.168.99.100:7058",
+				"api_url": "grpcs://localhost:7056",
+				"event_url": "grpcs://localhost:7058",
 				"name": "peer1.org1.blocledger.com",
 				"tls_cacerts": "./test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/peers/peer1.org1.blocledger.com/msp/cacerts/ca.org1.blocledger.com-cert.pem"
 			}
