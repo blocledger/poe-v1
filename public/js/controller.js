@@ -112,6 +112,14 @@ var activeUser;
       $scope.userName = response.data.userName;
     }, function(response) {
     });
+    $http.get(baseUrl + '/adminPriv')
+    .then(function(response) {
+      if (response.data.adminPriv) {
+        $scope.adminPriv = true;
+      } else {
+        $scope.adminPriv = false;
+      }
+    });
 
     $scope.loginFn = function() {
       var params = {
@@ -121,7 +129,8 @@ var activeUser;
       };
       $http.post(baseUrl + '/login', params)
       .then(function(response) {
-        window.location.href = '/';
+        window.location.href = '/#!/listDoc';
+        window.location.reload(true);
       }, function(response) {
         $scope.showErrorAlert = true;
         $scope.alertErrorMsg = response.data;

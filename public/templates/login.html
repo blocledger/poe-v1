@@ -1,4 +1,21 @@
-<h2 class="sub-header">Login user</h2>
+<h2 class="sub-header">BlocLedger Software Suite</h2>
+
+<table align="center" style="width: 100%">
+<tbody>
+<tr>
+<td align="center"><img src="templates/icon-eSig-Record.png" alt="eSig Record" width="100"></td>
+<td align="center"><img src="templates/icon-DocVerify.png" alt="Verify Doc" width="100"></td>
+<td align="center"><img src="templates/icon-Fab-Xplore.png" alt="Fab Explore" width="100"></td>
+</tr>
+<tr>
+<td align="center">eSig Record</td>
+<td align="center">Doc Verify</td>
+<td align="center">Fab Xplore</td>
+</tr>
+</tbody>
+</table>
+
+<h3 class=sub-header">Login User</h3>
 
 <fieldset>
 
@@ -33,5 +50,19 @@
 </form>
 
 </fieldset>
+
+<p>&nbsp;<p>
+
+<div ng-show='adminPriv'>
+
+<a class="btn btn-primary btn-lg col-sm-offset-0" ng-href="#!/addUser"
+uib-tooltip="Click to add a user" tooltip-placement="right">
+  <span class="glyphicon glyphicon-ok"></span> Add User</a>
+
+<a class="btn btn-primary btn-lg col-sm-offset-2" ng-href="#!/editUser"
+uib-tooltip="Click to edit a user" tooltip-placement="right">
+  <span class="glyphicon glyphicon-ok"></span> Edit User</a>
+
+</div>
 
 <transaction-alerts></transaction-alerts>

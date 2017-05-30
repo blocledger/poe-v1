@@ -43,6 +43,6 @@ angular.
         when('/editUser', {
           template: '<edit-user></edit-user>'
         }).
-        otherwise('/');
+        otherwise('/login');
     }
   ]);
