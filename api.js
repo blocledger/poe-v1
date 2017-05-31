@@ -174,12 +174,13 @@ app.get('/login', function(req, res) {
 
 app.post('/login', function(req, res) {
   var params = req.body;
-  var pwHash = sha.sha256(PwStr + params.userName + params.userPw);
+  var userName = params.userName.toLowerCase();
+  var pwHash = sha.sha256(PwStr + userName + params.userPw);
   var retVal = true;
 
-  console.log('Login post: ' + params.userName);
+  console.log('Login post: ' + userName);
 
-  var appUser = GlobalAppUser[params.userName];
+  var appUser = GlobalAppUser[userName];
   if (appUser) {
     console.log('app user:'); console.log(appUser);
     if (pwHash !== appUser.pwHash) {
