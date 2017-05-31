@@ -10,7 +10,7 @@ hash so that its existence can be later proved through transaction queries.
 * node - v6.9.5
 * Git client
 * Windows needs OpenSSL installed into C:/OpenSSL-Win64
-  * https://slproweb.com/download/Win64OpenSSL-1_0_2k.exe is a working package
+  * Goto https://slproweb.com/products/Win32OpenSSL.html and pick the full Win64 package 
 
 ## Installation
 
