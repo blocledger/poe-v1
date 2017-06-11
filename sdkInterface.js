@@ -44,7 +44,7 @@ function deploy(req, res) {
   var cred = init.cred;
   var targets = chain.getPeers();
   var store = client.getStateStore();
-  debug('primary peer is ', chain.getPrimaryPeer());
+  debug('The first peer is ', targets[0]);
 
   client.getUserContext('peerorg1Admin', true)
   .then(function(user) {
@@ -278,7 +278,6 @@ function retrySdkInvoke(user, invokeRequest, maxRetries) {
 function sdkQuery(user, queryRequest, maxRetries) {
   var client = init.client;
   var chain = init.chain;
-  var target = chain.getPrimaryPeer();
   var store = client.getStateStore();
 
   return client.setUserContext(user, true)
@@ -290,7 +289,7 @@ function sdkQuery(user, queryRequest, maxRetries) {
     ccID = queryRequest.chaincodeID;
 
     let request = {
-      targets: target,
+      targets: targets[0],
       chaincodeId: ccID.chaincodeId,
       chaincodeVersion: ccID.chaincodeVersion,
       fcn: queryRequest.fcn,
