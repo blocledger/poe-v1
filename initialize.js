@@ -38,7 +38,7 @@ var cred = config.cred;  // Configuration file for the test network from the fab
 var client = new HFC();
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-var chain = client.newChain(config.channelId);
+var chain = client.newChannel(config.channelId);
 var targets = [];
 
 var tlsOptions = {

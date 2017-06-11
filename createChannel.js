@@ -246,7 +246,7 @@ HFC.newDefaultKeyValueStore({
   debug('Channel created ', result);
   if (!config.windows) {eventhub.disconnect();}
 
-  chain = client.newChain('mychannel');
+  chain = client.newChannel(config.channelId);
   chain.addOrderer(orderer);
 
   // see if the channel has been created
@@ -261,7 +261,7 @@ HFC.newDefaultKeyValueStore({
   debug(err);
   if (!config.windows) {eventhub.disconnect();}
 
-  chain = client.newChain('mychannel');
+  chain = client.newChannel(config.channelId);
   chain.addOrderer(orderer);
   debug('----------calling getChannelConfig after createChannel fails -----------');
   return chain.getChannelConfig();
