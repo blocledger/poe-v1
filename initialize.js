@@ -185,11 +185,13 @@ HFC.newDefaultKeyValueStore({
   debug('Finished initializing users');
   debug(results);
 
-  return client.setUserContext(member);
+  return client.getUserContext('peerorg1Admin', true);
 })
-.then(function() {
+.then(function(user) {
 
   debug('Channel information ---------------------');
+  debug('User name ', user.getName());
+  debug(user.getIdentity());
   let promises = [];
   targets.forEach(function(target) {
     promises.push(client.queryChannels(target));
