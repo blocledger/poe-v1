@@ -52,8 +52,7 @@ function deploy(req, res) {
     debug('set the client user context');
     debug(user);
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, deployUser);
+    let txId = client.newTransactionID();
 
     // send proposal to endorser
     let request = {
@@ -62,7 +61,6 @@ function deploy(req, res) {
       chaincodeId: ccName,
       chaincodeVersion: ccVersion,
       txId: txId,
-      nonce: nonce
     };
     debug('install chaincode request');
     debug(request);
@@ -88,8 +86,7 @@ function deploy(req, res) {
   .then(function(results) {
     console.log('chain initialize result ', results);
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, deployUser);
+    let txId = client.newTransactionID();
 
     // send proposal to endorser
     let request = {
@@ -101,7 +98,6 @@ function deploy(req, res) {
       args: [],
       chainId: config.channelId,
       txId: txId,
-      nonce: nonce
     };
     debug('====== Instantiate Proposal request ===========');
     debug(request);
@@ -179,8 +175,7 @@ function sdkInvoke(user, invokeRequest) {
     eventhub.connect();
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, user);
+    let txId = client.newTransactionID();
     ehtxid = txId.toString();
     // debug('the user context is ', client.getUserContext());
     let ccID = {};
@@ -194,7 +189,6 @@ function sdkInvoke(user, invokeRequest) {
       args: invokeRequest.args,
       chainId: config.channelId,
       txId: txId,
-      nonce: nonce
     };
     debug(request);
     return chain.sendTransactionProposal(request);
@@ -290,8 +284,7 @@ function sdkQuery(user, queryRequest, maxRetries) {
   return client.setUserContext(user, true)
   .then(function(user) {
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, user);
+    let txId = client.newTransactionID();
     let ccID = {};
 
     ccID = queryRequest.chaincodeID;
@@ -304,7 +297,6 @@ function sdkQuery(user, queryRequest, maxRetries) {
       args: queryRequest.args,
       chainId: config.channelId,
       txId: txId,
-      nonce: nonce
     };
     debug(request);
     return chain.queryByChaincode(request);

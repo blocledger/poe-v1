@@ -190,9 +190,8 @@ HFC.newDefaultKeyValueStore({
   var signatures = [];
   signatures.push(signature);
   signatures.push(signature);  // this second signature is from the sdk test code.  Appears to work around a problem somewhere
-  let nonce = utils.getNonce();
-  let txId = HFC.buildTransactionID(nonce, peerorg1Admin);
-  ehtxid = txId.toString();
+  let txId = client.newTransactionID();
+  ehtxid = txId.getTransactionID();
 
   // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
   // set up the event hub
@@ -237,7 +236,6 @@ HFC.newDefaultKeyValueStore({
     config: channelConfig,
     signatures: signatures,
     txId: txId,
-    nonce: nonce
   };
 
   debug('============  calling createChannel =====================');
@@ -293,11 +291,9 @@ HFC.newDefaultKeyValueStore({
   debug('finished enrolling orderer admin');
   debug(admin);
 
-  let nonce = utils.getNonce();
-  let txId = HFC.buildTransactionID(nonce, admin);
+  let txId = client.newTransactionID();
   let request = {
     txId: txId,
-    nonce: nonce
   };
   return chain.getGenesisBlock(request);
 })
@@ -310,13 +306,11 @@ HFC.newDefaultKeyValueStore({
 
   // join the peers to the channel
   debug('join the peers to the channel');
-  let nonce = utils.getNonce();
-  let txId = HFC.buildTransactionID(nonce, user);
+  let txId = client.newTransactionID();
   var request = {
     targets: targets,
     block: genisisBlock,
     txId: txId,
-    nonce: nonce
   };
   return chain.joinChannel(request);
 })
