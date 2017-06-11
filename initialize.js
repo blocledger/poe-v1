@@ -48,7 +48,9 @@ var tlsOptions = {
 
 debug('ca tls cert', cred.cas[0].tls_cacerts);
 
-var cryptoSuite = client.newCryptoSuite({path: config.keyPath});
+var cryptoSuite = HFC.newCryptoSuite();
+cryptoSuite.setCryptoKeyStore(HFC.newCryptoKeyStore({path: config.keyPath}));
+client.setCryptoSuite(cryptoSuite);   // It may not be necessary to set the cryptoSuite here
 var ca = new FabricCAServices(cred.cas[0].api_url, tlsOptions, '', cryptoSuite);
 var admin;
 var member;

@@ -22,6 +22,7 @@ var util = require('util');
 
 var config = require('./configuration.js');
 var User = require('fabric-client/lib/User.js');
+var HFC = require('fabric-client');
 var init = require('./initialize.js');
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
@@ -68,7 +69,8 @@ function newUser(appUser) {
     debug('user enrollment ', enrollment);
     user = new User(appUser.userName, client);
 
-    var cryptoSuite = client.newCryptoSuite({path: config.keyPath});
+    var cryptoSuite = HFC.newCryptoSuite();
+    cryptoSuite.setCryptoKeyStore(HFC.newCryptoKeyStore({path: config.keyPath}));
     user.setCryptoSuite(cryptoSuite);
     return user.setEnrollment(enrollment.key, enrollment.certificate, mspid);
   })

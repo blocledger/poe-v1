@@ -47,7 +47,9 @@ let opts = {path: config.keyPath};
 debug(opts);
 
 debug('=============================================================');
-var cryptoSuite = client.newCryptoSuite(opts);
+var cryptoSuite = HFC.newCryptoSuite();
+cryptoSuite.setCryptoKeyStore(HFC.newCryptoKeyStore(opts));
+client.setCryptoSuite(cryptoSuite);
 debug(cryptoSuite);
 debug('=============================================================');
 var ca = new FabricCAServices(cred.cas[0].api_url, tlsOptions, '', cryptoSuite);  // Create a new CA
