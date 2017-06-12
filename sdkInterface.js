@@ -279,11 +279,11 @@ function sdkQuery(user, queryRequest, maxRetries) {
   var client = init.client;
   var chain = init.chain;
   var store = client.getStateStore();
+  var targets = chain.getPeers();
 
   return client.setUserContext(user, true)
   .then(function(user) {
 
-    let txId = client.newTransactionID();
     let ccID = {};
 
     ccID = queryRequest.chaincodeID;
@@ -291,11 +291,9 @@ function sdkQuery(user, queryRequest, maxRetries) {
     let request = {
       targets: targets[0],
       chaincodeId: ccID.chaincodeId,
-      chaincodeVersion: ccID.chaincodeVersion,
       fcn: queryRequest.fcn,
       args: queryRequest.args,
-      chainId: config.channelId,
-      txId: txId,
+      channelId: config.channelId,
     };
     debug(request);
     return chain.queryByChaincode(request);
