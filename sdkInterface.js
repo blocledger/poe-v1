@@ -176,7 +176,7 @@ function sdkInvoke(user, invokeRequest) {
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     let txId = client.newTransactionID();
-    ehtxid = txId.toString();
+    ehtxid = txId.getTransactionID();
     // debug('the user context is ', client.getUserContext());
     let ccID = {};
     debug(invokeRequest);
