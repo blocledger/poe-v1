@@ -52,15 +52,12 @@ function deploy(req, res) {
     debug('set the client user context');
     debug(user);
 
-    let txId = client.newTransactionID();
-
     // send proposal to endorser
     let request = {
       targets: targets,
       chaincodePath: chaincodePath,
       chaincodeId: ccName,
       chaincodeVersion: ccVersion,
-      txId: txId,
     };
     debug('install chaincode request');
     debug(request);
