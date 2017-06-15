@@ -38,7 +38,7 @@ var cred = config.cred;  // Configuration file for the test network from the fab
 var client = new HFC();
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-var chain = client.newChannel(config.channelId);
+var channel = client.newChannel(config.channelId);
 var targets = [];
 
 var tlsOptions = {
@@ -69,7 +69,7 @@ for (var i = 0; i < cred.peers.length; i++) {
 }
 for (var i = 0; i < peerList.length; i++) {
   targets.push(peerList[i]);
-  chain.addPeer(peerList[i]);
+  channel.addPeer(peerList[i]);
 }
 
 // Add orderer
@@ -80,7 +80,7 @@ var orderer = client.newOrderer(
         'ssl-target-name-override': cred.orderers[0].common_name
       }
 );
-chain.addOrderer(orderer);
+channel.addOrderer(orderer);
 
 // Configure the KeyValStore which is used to store sensitive keys
 // check that the ./tmp directory existsSync
@@ -205,8 +205,8 @@ HFC.newDefaultKeyValueStore({
   });
   debug('-----------------------------------------');
 
-  debug('calling chain initialize');
-  return chain.initialize();
+  debug('calling channel initialize');
+  return channel.initialize();
 })
 .then(function(result) {
   debug('initialize success', result);
@@ -228,7 +228,7 @@ HFC.newDefaultKeyValueStore({
   debug('Failed registration or initialization', err);
 });
 
-exports.chain = chain;
+exports.channel = channel;
 exports.GlobalAppUser = GlobalAppUser;
 exports.poeChaincode = poeChaincode;
 exports.setPoeChaincode = setPoeChaincode;

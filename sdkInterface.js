@@ -40,9 +40,9 @@ function deploy(req, res) {
   var ccName = 'poe' + '-' + Math.floor(Math.random() * 1000);
   var deployUser;
   var client = init.client;
-  var chain = init.chain;
+  var channel = init.channel;
   var cred = init.cred;
-  var targets = chain.getPeers();
+  var targets = channel.getPeers();
   var store = client.getStateStore();
   debug('The first peer is ', targets[0]);
 
@@ -78,10 +78,10 @@ function deploy(req, res) {
       }
     }
 
-    return chain.initialize();
+    return channel.initialize();
   })
   .then(function(results) {
-    console.log('chain initialize result ', results);
+    console.log('channel initialize result ', results);
 
     let txId = client.newTransactionID();
 
@@ -96,7 +96,7 @@ function deploy(req, res) {
     };
     debug('====== Instantiate Proposal request ===========');
     debug(request);
-    return chain.sendInstantiateProposal(request);
+    return channel.sendInstantiateProposal(request);
   })
   .then(function(results) {
     let proposalResponses = results[0];
@@ -114,7 +114,7 @@ function deploy(req, res) {
       proposal: proposal,
       header: header
     };
-    return chain.sendTransaction(request);
+    return channel.sendTransaction(request);
   })
   .then(function(results) {
     debug('====== sendTransaction results ===========');
@@ -145,11 +145,11 @@ function deploy(req, res) {
 // create a promise for the chaincode Invoke so it can be easily retried
 function sdkInvoke(user, invokeRequest) {
   var client = init.client;
-  var chain = init.chain;
+  var channel = init.channel;
   var cred = init.cred;
   var eventhub;
   var ehtxid;
-  var targets = chain.getPeers();
+  var targets = channel.getPeers();
   var store = client.getStateStore();
   debug(invokeRequest);
 
@@ -186,7 +186,7 @@ function sdkInvoke(user, invokeRequest) {
       txId: txId,
     };
     debug(request);
-    return chain.sendTransactionProposal(request);
+    return channel.sendTransactionProposal(request);
   })
   .then(function(results) {
     let proposalResponses = results[0];
@@ -230,7 +230,7 @@ function sdkInvoke(user, invokeRequest) {
       header: header
     };
     debug('======  sending transaction  =========');
-    return Q.allSettled([chain.sendTransaction(request), ehPromise]);
+    return Q.allSettled([channel.sendTransaction(request), ehPromise]);
   })
   .then(function(results) {
     debug('====== sendTransaction results ===========');
@@ -272,9 +272,9 @@ function retrySdkInvoke(user, invokeRequest, maxRetries) {
 // create a promise for the chaincode query so it can be easily retried
 function sdkQuery(user, queryRequest, maxRetries) {
   var client = init.client;
-  var chain = init.chain;
+  var channel = init.channel;
   var store = client.getStateStore();
-  var targets = chain.getPeers();
+  var targets = channel.getPeers();
 
   return client.setUserContext(user, true)
   .then(function(user) {
@@ -291,7 +291,7 @@ function sdkQuery(user, queryRequest, maxRetries) {
       channelId: config.channelId,
     };
     debug(request);
-    return chain.queryByChaincode(request);
+    return channel.queryByChaincode(request);
   })
   .then(function(results) {
     debug('====== queryByChaincode results ==========');

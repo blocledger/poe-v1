@@ -54,7 +54,7 @@ debug(cryptoSuite);
 debug('=============================================================');
 var ca = new FabricCAServices(cred.cas[0].api_url, tlsOptions, '', cryptoSuite);  // Create a new CA
 var targets = [];
-var chain = {};
+var channel = {};
 var eventhub;
 var ehtxid;
 
@@ -245,25 +245,25 @@ HFC.newDefaultKeyValueStore({
   debug('Channel created ', result);
   eventhub.disconnect();
 
-  chain = client.newChannel(config.channelId);
-  chain.addOrderer(orderer);
+  channel = client.newChannel(config.channelId);
+  channel.addOrderer(orderer);
 
   // see if the channel has been created
-  debug(chain);
-  debug('chain name', chain.getName());
-  debug('orderers', chain.getOrderers());
+  debug(channel);
+  debug('channel name', channel.getName());
+  debug('orderers', channel.getOrderers());
 
   debug('----------calling getChannelConfig after createChannel succeeded -----------');
-  return chain.getChannelConfig();
+  return channel.getChannelConfig();
 }, function(err) {
   debug('Error creating channel, maybe it is already created, try building it');
   debug(err);
   eventhub.disconnect();
 
-  chain = client.newChannel(config.channelId);
-  chain.addOrderer(orderer);
+  channel = client.newChannel(config.channelId);
+  channel.addOrderer(orderer);
   debug('----------calling getChannelConfig after createChannel fails -----------');
-  return chain.getChannelConfig();
+  return channel.getChannelConfig();
 })
 .then(function(result) {
   debug('channel config', result);
@@ -294,7 +294,7 @@ HFC.newDefaultKeyValueStore({
   let request = {
     txId: txId,
   };
-  return chain.getGenesisBlock(request);
+  return channel.getGenesisBlock(request);
 })
 .then(function(block) {
   genisisBlock = block;
@@ -311,7 +311,7 @@ HFC.newDefaultKeyValueStore({
     block: genisisBlock,
     txId: txId,
   };
-  return chain.joinChannel(request);
+  return channel.joinChannel(request);
 })
 .then(function(result) {
   debug('-------- join channel results ---------');
