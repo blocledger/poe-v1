@@ -189,7 +189,6 @@ HFC.newDefaultKeyValueStore({
   var signature = client.signChannelConfig(channelConfig);
   var signatures = [];
   signatures.push(signature);
-  signatures.push(signature);  // this second signature is from the sdk test code.  Appears to work around a problem somewhere
   let txId = client.newTransactionID();
   ehtxid = txId.getTransactionID();
 
@@ -231,7 +230,7 @@ HFC.newDefaultKeyValueStore({
 
   // Create the new form for request...
   request = {
-    name: 'mychannel',
+    name: config.channelId,
     orderer: orderer,
     config: channelConfig,
     signatures: signatures,
