@@ -38,7 +38,7 @@ var cred = config.cred;  // Configuration file for the test network from the fab
 var client = new HFC();
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-var chain = client.newChain(config.channelId);
+var channel = client.newChannel(config.channelId);
 var targets = [];
 
 var tlsOptions = {
@@ -48,7 +48,9 @@ var tlsOptions = {
 
 debug('ca tls cert', cred.cas[0].tls_cacerts);
 
-var cryptoSuite = client.newCryptoSuite({path: config.keyPath});
+var cryptoSuite = HFC.newCryptoSuite();
+cryptoSuite.setCryptoKeyStore(HFC.newCryptoKeyStore({path: config.keyPath}));
+client.setCryptoSuite(cryptoSuite);   // It may not be necessary to set the cryptoSuite here
 var ca = new FabricCAServices(cred.cas[0].api_url, tlsOptions, '', cryptoSuite);
 var admin;
 var member;
@@ -67,7 +69,7 @@ for (var i = 0; i < cred.peers.length; i++) {
 }
 for (var i = 0; i < peerList.length; i++) {
   targets.push(peerList[i]);
-  chain.addPeer(peerList[i]);
+  channel.addPeer(peerList[i]);
 }
 
 // Add orderer
@@ -78,7 +80,7 @@ var orderer = client.newOrderer(
         'ssl-target-name-override': cred.orderers[0].common_name
       }
 );
-chain.addOrderer(orderer);
+channel.addOrderer(orderer);
 
 // Configure the KeyValStore which is used to store sensitive keys
 // check that the ./tmp directory existsSync
@@ -183,11 +185,13 @@ HFC.newDefaultKeyValueStore({
   debug('Finished initializing users');
   debug(results);
 
-  return client.setUserContext(member);
+  return client.getUserContext('peerorg1Admin', true);
 })
-.then(function() {
+.then(function(user) {
 
   debug('Channel information ---------------------');
+  debug('User name ', user.getName());
+  debug(user.getIdentity());
   let promises = [];
   targets.forEach(function(target) {
     promises.push(client.queryChannels(target));
@@ -201,8 +205,8 @@ HFC.newDefaultKeyValueStore({
   });
   debug('-----------------------------------------');
 
-  debug('calling chain initialize');
-  return chain.initialize();
+  debug('calling channel initialize');
+  return channel.initialize();
 })
 .then(function(result) {
   debug('initialize success', result);
@@ -224,7 +228,7 @@ HFC.newDefaultKeyValueStore({
   debug('Failed registration or initialization', err);
 });
 
-exports.chain = chain;
+exports.channel = channel;
 exports.GlobalAppUser = GlobalAppUser;
 exports.poeChaincode = poeChaincode;
 exports.setPoeChaincode = setPoeChaincode;

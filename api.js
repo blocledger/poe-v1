@@ -59,7 +59,6 @@ debug(process.env.GOPATH);
 var confidentialSetting = config.confidentialSetting;
 
 // Store the exports from initialize.js in global variables
-var chain = init.chain;
 var GlobalAppUser = init.GlobalAppUser;
 
 var cred = config.cred;
@@ -116,7 +115,7 @@ app.get('/chain/transactions/:id', function(req, res) {
   init.client.setUserContext(appUser.hfcUser, true)
   .then(function(user) {
     console.log('user is ', user.getName());
-    return init.chain.queryTransaction(req.params.id);
+    return init.channel.queryTransaction(req.params.id);
   })
   .then(function(result) {
     debug(result);

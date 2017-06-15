@@ -40,11 +40,11 @@ function deploy(req, res) {
   var ccName = 'poe' + '-' + Math.floor(Math.random() * 1000);
   var deployUser;
   var client = init.client;
-  var chain = init.chain;
+  var channel = init.channel;
   var cred = init.cred;
-  var targets = chain.getPeers();
+  var targets = channel.getPeers();
   var store = client.getStateStore();
-  debug('primary peer is ', chain.getPrimaryPeer());
+  debug('The first peer is ', targets[0]);
 
   client.getUserContext('peerorg1Admin', true)
   .then(function(user) {
@@ -52,17 +52,12 @@ function deploy(req, res) {
     debug('set the client user context');
     debug(user);
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, deployUser);
-
     // send proposal to endorser
     let request = {
       targets: targets,
       chaincodePath: chaincodePath,
       chaincodeId: ccName,
       chaincodeVersion: ccVersion,
-      txId: txId,
-      nonce: nonce
     };
     debug('install chaincode request');
     debug(request);
@@ -83,29 +78,25 @@ function deploy(req, res) {
       }
     }
 
-    return chain.initialize();
+    return channel.initialize();
   })
   .then(function(results) {
-    console.log('chain initialize result ', results);
+    console.log('channel initialize result ', results);
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, deployUser);
+    let txId = client.newTransactionID();
 
     // send proposal to endorser
     let request = {
       targets: targets,
-      chaincodePath: chaincodePath,
       chaincodeId: ccName,
       chaincodeVersion: ccVersion,
       fcn: 'init',
       args: [],
-      chainId: config.channelId,
       txId: txId,
-      nonce: nonce
     };
     debug('====== Instantiate Proposal request ===========');
     debug(request);
-    return chain.sendInstantiateProposal(request);
+    return channel.sendInstantiateProposal(request);
   })
   .then(function(results) {
     let proposalResponses = results[0];
@@ -123,7 +114,7 @@ function deploy(req, res) {
       proposal: proposal,
       header: header
     };
-    return chain.sendTransaction(request);
+    return channel.sendTransaction(request);
   })
   .then(function(results) {
     debug('====== sendTransaction results ===========');
@@ -154,11 +145,11 @@ function deploy(req, res) {
 // create a promise for the chaincode Invoke so it can be easily retried
 function sdkInvoke(user, invokeRequest) {
   var client = init.client;
-  var chain = init.chain;
+  var channel = init.channel;
   var cred = init.cred;
   var eventhub;
   var ehtxid;
-  var targets = chain.getPeers();
+  var targets = channel.getPeers();
   var store = client.getStateStore();
   debug(invokeRequest);
 
@@ -179,9 +170,8 @@ function sdkInvoke(user, invokeRequest) {
     eventhub.connect();
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, user);
-    ehtxid = txId.toString();
+    let txId = client.newTransactionID();
+    ehtxid = txId.getTransactionID();
     // debug('the user context is ', client.getUserContext());
     let ccID = {};
     debug(invokeRequest);
@@ -194,10 +184,9 @@ function sdkInvoke(user, invokeRequest) {
       args: invokeRequest.args,
       chainId: config.channelId,
       txId: txId,
-      nonce: nonce
     };
     debug(request);
-    return chain.sendTransactionProposal(request);
+    return channel.sendTransactionProposal(request);
   })
   .then(function(results) {
     let proposalResponses = results[0];
@@ -216,14 +205,14 @@ function sdkInvoke(user, invokeRequest) {
 
     let ehPromise = new Promise(function(resolve, reject) {
       let handle = setTimeout(function() {
-        if (!config.windows) {eventhub.unregisterTxEvent(ehtxid);}
+        eventhub.unregisterTxEvent(ehtxid);
         reject(new Error('Event hub timed out.'));
       }, 30000);
       debug('registering for the Tx event');
 
       eventhub.registerTxEvent(ehtxid, function(txid, code) {
         clearTimeout(handle);
-        if (!config.windows) {eventhub.unregisterTxEvent(txid);}
+        eventhub.unregisterTxEvent(txid);
 
         if (code !== 'VALID') {
           debug('Transaction failed event hub reported:', code);
@@ -241,7 +230,7 @@ function sdkInvoke(user, invokeRequest) {
       header: header
     };
     debug('======  sending transaction  =========');
-    return Q.allSettled([chain.sendTransaction(request), ehPromise]);
+    return Q.allSettled([channel.sendTransaction(request), ehPromise]);
   })
   .then(function(results) {
     debug('====== sendTransaction results ===========');
@@ -251,13 +240,13 @@ function sdkInvoke(user, invokeRequest) {
         return Q.reject(results[i].reason);
       }
     }
-    if (!config.windows) {eventhub.disconnect();}
+    eventhub.disconnect();
     return Q.resolve(results);
   })
   .catch(function(err) {
     debug('====== invoke failed ===========');
     debug(err);
-    if (!config.windows) {eventhub.disconnect();}
+    eventhub.disconnect();
     return Q.reject(err);
   });
 }
@@ -283,31 +272,26 @@ function retrySdkInvoke(user, invokeRequest, maxRetries) {
 // create a promise for the chaincode query so it can be easily retried
 function sdkQuery(user, queryRequest, maxRetries) {
   var client = init.client;
-  var chain = init.chain;
-  var target = chain.getPrimaryPeer();
+  var channel = init.channel;
   var store = client.getStateStore();
+  var targets = channel.getPeers();
 
   return client.setUserContext(user, true)
   .then(function(user) {
 
-    let nonce = utils.getNonce();
-    let txId = hfc.buildTransactionID(nonce, user);
     let ccID = {};
 
     ccID = queryRequest.chaincodeID;
 
     let request = {
-      targets: target,
+      targets: targets[0],
       chaincodeId: ccID.chaincodeId,
-      chaincodeVersion: ccID.chaincodeVersion,
       fcn: queryRequest.fcn,
       args: queryRequest.args,
-      chainId: config.channelId,
-      txId: txId,
-      nonce: nonce
+      channelId: config.channelId,
     };
     debug(request);
-    return chain.queryByChaincode(request);
+    return channel.queryByChaincode(request);
   })
   .then(function(results) {
     debug('====== queryByChaincode results ==========');

@@ -10,7 +10,7 @@ hash so that its existence can be later proved through transaction queries.
 * node - v6.9.5
 * Git client
 * Windows needs OpenSSL installed into C:/OpenSSL-Win64
-  * Goto https://slproweb.com/products/Win32OpenSSL.html and pick the full Win64 package 
+  * Goto https://slproweb.com/products/Win32OpenSSL.html and pick the full Win64 package
 
 ## Installation
 
@@ -23,17 +23,6 @@ npm install -g mocha
 npm install -g bower
 npm install
 ```
-
-> **Windows note:** To avoid a problem with the windows style '\\' during
-> the chaincode install resulting in the error:
->
-> `Promise is rejected: Error: Illegal file detected in payload: "src\github.com\chaincode\poe_chaincode.go"`
->
-> per FAB-3975,
-> add `.split('\\').join('/')` to the end of line 98 of
-> node_modules/fabric-client/lib/packager/Golang.js like this:
->
-> `name: path.relative(goPath, entry.path).split('\\').join('/'),`
 
 ## Setting up a test blockchain using Docker
 
@@ -48,7 +37,7 @@ The instructions below assume that you already have docker installed and running
 
 Pull the fabric chaincode environment image using the x86_64-1.0.0-alpha tag.
 ```
-docker pull hyperledger/fabric-ccenv:x86_64-1.0.0-alpha2
+docker pull hyperledger/fabric-ccenv:x86_64-1.0.0-beta
 ```
 Next give the fabric-ccenv the 'latest' tag so that software can use it.
 Replace the image ID (4ac07a26ca7a) in the example command with the image ID

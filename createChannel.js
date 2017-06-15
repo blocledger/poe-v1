@@ -47,12 +47,14 @@ let opts = {path: config.keyPath};
 debug(opts);
 
 debug('=============================================================');
-var cryptoSuite = client.newCryptoSuite(opts);
+var cryptoSuite = HFC.newCryptoSuite();
+cryptoSuite.setCryptoKeyStore(HFC.newCryptoKeyStore(opts));
+client.setCryptoSuite(cryptoSuite);
 debug(cryptoSuite);
 debug('=============================================================');
 var ca = new FabricCAServices(cred.cas[0].api_url, tlsOptions, '', cryptoSuite);  // Create a new CA
 var targets = [];
-var chain = {};
+var channel = {};
 var eventhub;
 var ehtxid;
 
@@ -187,10 +189,8 @@ HFC.newDefaultKeyValueStore({
   var signature = client.signChannelConfig(channelConfig);
   var signatures = [];
   signatures.push(signature);
-  signatures.push(signature);  // this second signature is from the sdk test code.  Appears to work around a problem somewhere
-  let nonce = utils.getNonce();
-  let txId = HFC.buildTransactionID(nonce, peerorg1Admin);
-  ehtxid = txId.toString();
+  let txId = client.newTransactionID();
+  ehtxid = txId.getTransactionID();
 
   // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
   // set up the event hub
@@ -208,7 +208,7 @@ HFC.newDefaultKeyValueStore({
 
   let ehPromise = new Promise(function(resolve, reject) {
     let handle = setTimeout(function() {
-      if (!config.windows) {eventhub.unregisterTxEvent(ehtxid);}
+      eventhub.unregisterTxEvent(ehtxid);
       reject(new Error('Event hub timed out.'));
     }, 10000);
     debug('registering for the Tx event');
@@ -216,7 +216,7 @@ HFC.newDefaultKeyValueStore({
     // Setup event hug to listen for results
     eventhub.registerTxEvent(ehtxid, function(txid, code) {
       clearTimeout(handle);
-      if (!config.windows) {eventhub.unregisterTxEvent(txid);}
+      eventhub.unregisterTxEvent(txid);
 
       if (code !== 'VALID') {
         debug('Transaction failed event hub reported:', code);
@@ -230,12 +230,11 @@ HFC.newDefaultKeyValueStore({
 
   // Create the new form for request...
   request = {
-    name: 'mychannel',
+    name: config.channelId,
     orderer: orderer,
     config: channelConfig,
     signatures: signatures,
     txId: txId,
-    nonce: nonce
   };
 
   debug('============  calling createChannel =====================');
@@ -244,27 +243,27 @@ HFC.newDefaultKeyValueStore({
 .then(function(result) {
   debug('--------------------------------------------');
   debug('Channel created ', result);
-  if (!config.windows) {eventhub.disconnect();}
+  eventhub.disconnect();
 
-  chain = client.newChain('mychannel');
-  chain.addOrderer(orderer);
+  channel = client.newChannel(config.channelId);
+  channel.addOrderer(orderer);
 
   // see if the channel has been created
-  debug(chain);
-  debug('chain name', chain.getName());
-  debug('orderers', chain.getOrderers());
+  debug(channel);
+  debug('channel name', channel.getName());
+  debug('orderers', channel.getOrderers());
 
   debug('----------calling getChannelConfig after createChannel succeeded -----------');
-  return chain.getChannelConfig();
+  return channel.getChannelConfig();
 }, function(err) {
   debug('Error creating channel, maybe it is already created, try building it');
   debug(err);
-  if (!config.windows) {eventhub.disconnect();}
+  eventhub.disconnect();
 
-  chain = client.newChain('mychannel');
-  chain.addOrderer(orderer);
+  channel = client.newChannel(config.channelId);
+  channel.addOrderer(orderer);
   debug('----------calling getChannelConfig after createChannel fails -----------');
-  return chain.getChannelConfig();
+  return channel.getChannelConfig();
 })
 .then(function(result) {
   debug('channel config', result);
@@ -291,13 +290,11 @@ HFC.newDefaultKeyValueStore({
   debug('finished enrolling orderer admin');
   debug(admin);
 
-  let nonce = utils.getNonce();
-  let txId = HFC.buildTransactionID(nonce, admin);
+  let txId = client.newTransactionID();
   let request = {
     txId: txId,
-    nonce: nonce
   };
-  return chain.getGenesisBlock(request);
+  return channel.getGenesisBlock(request);
 })
 .then(function(block) {
   genisisBlock = block;
@@ -308,15 +305,13 @@ HFC.newDefaultKeyValueStore({
 
   // join the peers to the channel
   debug('join the peers to the channel');
-  let nonce = utils.getNonce();
-  let txId = HFC.buildTransactionID(nonce, user);
+  let txId = client.newTransactionID();
   var request = {
     targets: targets,
     block: genisisBlock,
     txId: txId,
-    nonce: nonce
   };
-  return chain.joinChannel(request);
+  return channel.joinChannel(request);
 })
 .then(function(result) {
   debug('-------- join channel results ---------');

@@ -2,7 +2,7 @@ version: '2'
 
 services:
   ca.blocledger.com:
-    image: hyperledger/fabric-ca:x86_64-1.0.0-alpha2
+    image: hyperledger/fabric-ca:x86_64-1.0.0-beta
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_TLS_ENABLED=true
@@ -19,7 +19,7 @@ services:
 
   orderer.blocledger.com:
     container_name: orderer.blocledger.com
-    image: hyperledger/fabric-orderer:x86_64-1.0.0-alpha2
+    image: hyperledger/fabric-orderer:x86_64-1.0.0-beta
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -45,7 +45,7 @@ services:
 
   peer0.org1.blocledger.com:
     container_name: peer0.org1.blocledger.com
-    image: hyperledger/fabric-peer:x86_64-1.0.0-alpha2
+    image: hyperledger/fabric-peer:x86_64-1.0.0-beta
     environment:
       - CORE_PEER_ID=peer0.org1.blocledger.com
       - CORE_PEER_ADDRESS=peer0.org1.blocledger.com:7051
@@ -83,7 +83,7 @@ services:
 
   peer1.org1.blocledger.com:
     container_name: peer1.org1.blocledger.com
-    image: hyperledger/fabric-peer:x86_64-1.0.0-alpha2
+    image: hyperledger/fabric-peer:x86_64-1.0.0-beta
     environment:
       - CORE_PEER_ID=peer1.org1.blocledger.com
       - CORE_PEER_ADDRESS=peer1.org1.blocledger.com:7051
