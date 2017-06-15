@@ -88,12 +88,10 @@ function deploy(req, res) {
     // send proposal to endorser
     let request = {
       targets: targets,
-      chaincodePath: chaincodePath,
       chaincodeId: ccName,
       chaincodeVersion: ccVersion,
       fcn: 'init',
       args: [],
-      chainId: config.channelId,
       txId: txId,
     };
     debug('====== Instantiate Proposal request ===========');
