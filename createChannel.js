@@ -208,7 +208,7 @@ HFC.newDefaultKeyValueStore({
 
   let ehPromise = new Promise(function(resolve, reject) {
     let handle = setTimeout(function() {
-      if (!config.windows) {eventhub.unregisterTxEvent(ehtxid);}
+      eventhub.unregisterTxEvent(ehtxid);
       reject(new Error('Event hub timed out.'));
     }, 10000);
     debug('registering for the Tx event');
@@ -216,7 +216,7 @@ HFC.newDefaultKeyValueStore({
     // Setup event hug to listen for results
     eventhub.registerTxEvent(ehtxid, function(txid, code) {
       clearTimeout(handle);
-      if (!config.windows) {eventhub.unregisterTxEvent(txid);}
+      eventhub.unregisterTxEvent(txid);
 
       if (code !== 'VALID') {
         debug('Transaction failed event hub reported:', code);
@@ -243,7 +243,7 @@ HFC.newDefaultKeyValueStore({
 .then(function(result) {
   debug('--------------------------------------------');
   debug('Channel created ', result);
-  if (!config.windows) {eventhub.disconnect();}
+  eventhub.disconnect();
 
   chain = client.newChannel(config.channelId);
   chain.addOrderer(orderer);
@@ -258,7 +258,7 @@ HFC.newDefaultKeyValueStore({
 }, function(err) {
   debug('Error creating channel, maybe it is already created, try building it');
   debug(err);
-  if (!config.windows) {eventhub.disconnect();}
+  eventhub.disconnect();
 
   chain = client.newChannel(config.channelId);
   chain.addOrderer(orderer);

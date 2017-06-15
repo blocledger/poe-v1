@@ -205,14 +205,14 @@ function sdkInvoke(user, invokeRequest) {
 
     let ehPromise = new Promise(function(resolve, reject) {
       let handle = setTimeout(function() {
-        if (!config.windows) {eventhub.unregisterTxEvent(ehtxid);}
+        eventhub.unregisterTxEvent(ehtxid);
         reject(new Error('Event hub timed out.'));
       }, 30000);
       debug('registering for the Tx event');
 
       eventhub.registerTxEvent(ehtxid, function(txid, code) {
         clearTimeout(handle);
-        if (!config.windows) {eventhub.unregisterTxEvent(txid);}
+        eventhub.unregisterTxEvent(txid);
 
         if (code !== 'VALID') {
           debug('Transaction failed event hub reported:', code);
@@ -240,13 +240,13 @@ function sdkInvoke(user, invokeRequest) {
         return Q.reject(results[i].reason);
       }
     }
-    if (!config.windows) {eventhub.disconnect();}
+    eventhub.disconnect();
     return Q.resolve(results);
   })
   .catch(function(err) {
     debug('====== invoke failed ===========');
     debug(err);
-    if (!config.windows) {eventhub.disconnect();}
+    eventhub.disconnect();
     return Q.reject(err);
   });
 }
