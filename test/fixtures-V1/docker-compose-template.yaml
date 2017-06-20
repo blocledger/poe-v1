@@ -16,6 +16,21 @@ services:
       - ./fabricca/tlsOrg1:/etc/hyperledger/fabric-ca-server
     container_name: ca.blocledger.com
 
+  ca1.blocledger.com:
+    image: hyperledger/fabric-ca:x86_64-1.0.0-beta
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.blocledger.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org2.blocledger.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.blocledger.com/ca/:/etc/hyperledger/fabric-ca-server-config
+      - ./fabricca/tlsOrg1:/etc/hyperledger/fabric-ca-server
+    container_name: ca1.blocledger.com
+
 
   orderer.blocledger.com:
     container_name: orderer.blocledger.com
@@ -120,3 +135,81 @@ services:
       - ca.blocledger.com
       - orderer.blocledger.com
       - peer0.org1.blocledger.com
+
+  peer0.org2.blocledger.com:
+    container_name: peer0.org2.blocledger.com
+    image: hyperledger/fabric-peer:x86_64-1.0.0-beta
+    environment:
+      - CORE_PEER_ID=peer0.org2.blocledger.com
+      - CORE_PEER_ADDRESS=peer0.org2.blocledger.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.blocledger.com:7051
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fixturesv1_default
+      #- CORE_LOGGING_LEVEL=ERROR
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      # The following setting skips the gossip handshake since we are
+      # are not doing mutual TLS
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/peer0.org2.blocledger.com-cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/PEER0_ORG2_PRIVATE_KEY
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/ca.org2.blocledger.com-cert.pem
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start --peer-defaultchain=false
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/org2.blocledger.com/peers/peer0.org2.blocledger.com/msp:/etc/hyperledger/fabric/msp
+    ports:
+      - 8051:7051
+      - 8053:7053
+    depends_on:
+      - ca1.blocledger.com
+      - orderer.blocledger.com
+
+  peer1.org2.blocledger.com:
+    container_name: peer1.org2.blocledger.com
+    image: hyperledger/fabric-peer:x86_64-1.0.0-beta
+    environment:
+      - CORE_PEER_ID=peer1.org2.blocledger.com
+      - CORE_PEER_ADDRESS=peer1.org2.blocledger.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.blocledger.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0:7051
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fixturesv1_default
+      #- CORE_LOGGING_LEVEL=ERROR
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      # The following setting skips the gossip handshake since we are
+      # are not doing mutual TLS
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/peer1.org2.blocledger.com-cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/PEER1_ORG2_PRIVATE_KEY
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/ca.org2.blocledger.com-cert.pem
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start --peer-defaultchain=false
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/org2.blocledger.com/peers/peer1.org2.blocledger.com/msp:/etc/hyperledger/fabric/msp
+    ports:
+      - 8056:7051
+      - 8058:7053
+    depends_on:
+      - ca1.blocledger.com
+      - orderer.blocledger.com
+      - peer0.org2.blocledger.com

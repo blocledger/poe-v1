@@ -185,7 +185,7 @@ HFC.newDefaultKeyValueStore({
   debug('Finished initializing users');
   debug(results);
 
-  return client.getUserContext('peerorg2Admin', true);
+  return client.getUserContext('peerorg1Admin', true);
 })
 .then(function(user) {
 
@@ -211,14 +211,14 @@ HFC.newDefaultKeyValueStore({
 .then(function(result) {
   debug('initialize success', result);
 
-  return client.getUserContext('peerorg2Admin', true);
+  return client.getUserContext('peerorg1Admin', true);
 })
 .then(function(user) {
   if (user && user.isEnrolled()) {
     debug('getting Installed Chaincodes');
     return client.queryInstalledChaincodes(targets[0]);
   }
-  return Q.resolve('peerorg2Admin not available to query Installed Chaincodes');
+  return Q.resolve('peerorg1Admin not available to query Installed Chaincodes');
 })
 .then(function(result) {
   debug('queryInstalledChaincodes results');

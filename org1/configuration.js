@@ -28,7 +28,7 @@ var cred;
 if (process.platform === 'darwin' || process.platform === 'linux') {
   cred = require('./config-mac.json');
 } else {
-  cred = require('./config-win2.json');
+  cred = require('./config-win1.json');
 }
 for (let i = 0; i < cred.peers.length; i++) {
   let data = fs.readFileSync(path.join(__dirname, cred.peers[i].tls_cacerts));

@@ -53,7 +53,8 @@ client.setCryptoSuite(cryptoSuite);
 debug(cryptoSuite);
 debug('=============================================================');
 var ca = new FabricCAServices(cred.cas[0].api_url, tlsOptions, '', cryptoSuite);  // Create a new CA
-var targets = [];
+var targetsOrg1 = [];
+var targetsOrg2 = [];
 var channel = {};
 var eventhub;
 var ehtxid;
@@ -81,7 +82,11 @@ for (var i = 0; i < cred.peers.length; i++) {
     }
   );
 
-  targets.push(peer);
+    if (i < 2) {
+      targetsOrg1.push(peer);
+    } else {
+      targetsOrg2.push(peer);
+    }
 }
 
 // Configure the KeyValStore which is used to store sensitive keys
@@ -99,6 +104,7 @@ var admin;
 var member;
 var genisisBlock;
 var peerorg1Admin;
+var peerorg2Admin;
 
 HFC.newDefaultKeyValueStore({
   path: kvsPath
@@ -155,7 +161,7 @@ HFC.newDefaultKeyValueStore({
 .then(function() {
 
   // jscs:disable maximumLineLength
-  debug('create a user based on the cert for org1 admin');
+  debug('create a user based on the cert for org2 admin');
   let data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/tls/', 'server.key'));
   let keyPEM = Buffer.from(data).toString();
   data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/tls/', 'server.crt'));
@@ -173,9 +179,31 @@ HFC.newDefaultKeyValueStore({
   return client.createUser(request);
 })
 .then(function(admin) {
-  debug('finished enrolling org1 admin');
+  debug('finished enrolling org2 admin');
   debug(admin);
   peerorg1Admin = admin;
+
+  debug('create a user based on the cert for org1 admin');
+  let data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org2.blocledger.com/users/Admin@org2.blocledger.com/tls/', 'server.key'));
+  let keyPEM = Buffer.from(data).toString();
+  data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org2.blocledger.com/users/Admin@org2.blocledger.com/tls/', 'server.crt'));
+  let certPEM = Buffer.from(data).toString();
+  // jscs:enable maximumLineLength
+
+  let request = {
+    username: 'peerorg2Admin',
+    mspid: cred.cas[1].msp_id,
+    cryptoContent: {
+      privateKeyPEM: keyPEM,
+      signedCertPEM: certPEM
+    }
+  };
+  return client.createUser(request);
+})
+.then(function(admin) {
+  debug('finished enrolling org1 admin');
+  debug(admin);
+  peerorg2Admin = admin;
 
   // read in the envelope to send to the orderer
   let data = fs.readFileSync(path.join(__dirname, './test/fixtures-V1/channel.tx'));
@@ -197,10 +225,10 @@ HFC.newDefaultKeyValueStore({
   debug('Connecting the event hub');
   eventhub = new EventHub(client);
   eventhub.setPeerAddr(
-    cred.peers[0].event_url,
+    cred.peers[2].event_url,
     {
-      pem: cred.peers[0].tls_cacerts,
-      'ssl-target-name-override': cred.peers[0].common_name
+      pem: cred.peers[2].tls_cacerts,
+      'ssl-target-name-override': cred.peers[2].common_name
     }
   );
   eventhub.connect();
@@ -307,7 +335,24 @@ HFC.newDefaultKeyValueStore({
   debug('join the peers to the channel');
   let txId = client.newTransactionID();
   var request = {
-    targets: targets,
+    targets: targetsOrg1,
+    block: genisisBlock,
+    txId: txId,
+  };
+  return channel.joinChannel(request);
+})
+.then(function(){
+debug('=====================setusercontext for Org2')
+  return client.setUserContext(peerorg2Admin);
+})
+
+.then(function(user) {
+
+  // join the peers to the channel
+  debug('join the peers to the channel for Org2');
+  let txId = client.newTransactionID();
+  var request = {
+    targets: targetsOrg2,
     block: genisisBlock,
     txId: txId,
   };

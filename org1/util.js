@@ -52,7 +52,7 @@ function newUser(appUser) {
     var registrationRequest = {
       enrollmentID: appUser.userName,
       role: 'client',
-      affiliation: 'org2'  // Hard code this to org2 for now...might be a bug
+      affiliation: 'org1'  // Hard code this to org1 for now...might be a bug
     };
     debug('registration request', registrationRequest);
     return ca.register(registrationRequest, registrar);
@@ -75,7 +75,7 @@ function newUser(appUser) {
     return user.setEnrollment(enrollment.key, enrollment.certificate, mspid);
   })
   .then(function() {
-    user.setAffiliation('org2');  // Hard code this to org2 for now.
+    user.setAffiliation('org1');  // Hard code this to org1 for now.
 
     debug('hfcUser set for ' + appUser.userName);
     appUser.hfcUser = user;

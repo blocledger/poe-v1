@@ -47,7 +47,7 @@ function deploy(req, res) {
   var store = client.getStateStore();
   debug('The first peer is ', targets[0]);
 
-  client.getUserContext('peerorg2Admin', true)
+  client.getUserContext('peerorg1Admin', true)
   .then(function(user) {
     deployUser = user;
     debug('set the client user context');
@@ -81,42 +81,42 @@ function deploy(req, res) {
 
     return channel.initialize();
   })
-  // .then(function(results) {
-  //   console.log('channel initialize result ', results);
-  //
-  //   let txId = client.newTransactionID();
-  //
-  //   // send proposal to endorser
-  //   let request = {
-  //     targets: targets,
-  //     chaincodeId: ccName,
-  //     chaincodeVersion: ccVersion,
-  //     fcn: 'init',
-  //     args: [],
-  //     txId: txId,
-  //   };
-  //   debug('====== Instantiate Proposal request ===========');
-  //   debug(request);
-  //   return channel.sendInstantiateProposal(request);
-  // })
-  // .then(function(results) {
-  //   let proposalResponses = results[0];
-  //   let proposal = results[1];
-  //   let header   = results[2];
-  //   debug('====== sendInstantiateProposal results ==========');
-  //   debug(proposalResponses);
-  //   debug('------- proposal ---------');
-  //   debug(proposal);
-  //   debug('------- header ---------');
-  //   debug(header);
-  //
-  //   let request = {
-  //     proposalResponses: proposalResponses,
-  //     proposal: proposal,
-  //     header: header
-  //   };
-  //   return channel.sendTransaction(request);
-  // })
+  .then(function(results) {
+    console.log('channel initialize result ', results);
+
+    let txId = client.newTransactionID();
+
+    // send proposal to endorser
+    let request = {
+      targets: targets,
+      chaincodeId: ccName,
+      chaincodeVersion: ccVersion,
+      fcn: 'init',
+      args: [],
+      txId: txId,
+    };
+    debug('====== Instantiate Proposal request ===========');
+    debug(request);
+    return channel.sendInstantiateProposal(request);
+  })
+  .then(function(results) {
+    let proposalResponses = results[0];
+    let proposal = results[1];
+    let header   = results[2];
+    debug('====== sendInstantiateProposal results ==========');
+    debug(proposalResponses);
+    debug('------- proposal ---------');
+    debug(proposal);
+    debug('------- header ---------');
+    debug(header);
+
+    let request = {
+      proposalResponses: proposalResponses,
+      proposal: proposal,
+      header: header
+    };
+    return channel.sendTransaction(request);
+  })
   .then(function(results) {
     debug('====== sendTransaction results ===========');
     debug(results);

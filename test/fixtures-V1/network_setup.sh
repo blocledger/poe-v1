@@ -54,10 +54,16 @@ function replacePrivateKey () {
   sed $OPTS  "s/ORDERER_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
 	PRIV_KEY=$(basename `ls crypto-config/peerOrganizations/org1.blocledger.com/ca/*_sk`)
   sed $OPTS "s/CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+	PRIV_KEY=$(basename `ls crypto-config/peerOrganizations/org2.blocledger.com/ca/*_sk`)
+  sed $OPTS "s/CA1_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
 	PRIV_KEY=$(ls crypto-config/peerOrganizations/org1.blocledger.com/peers/peer0.org1.blocledger.com/msp/keystore/)
   sed $OPTS "s/PEER0_ORG1_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
   PRIV_KEY=$(ls crypto-config/peerOrganizations/org1.blocledger.com/peers/peer1.org1.blocledger.com/msp/keystore/)
   sed $OPTS "s/PEER1_ORG1_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+	PRIV_KEY=$(ls crypto-config/peerOrganizations/org2.blocledger.com/peers/peer0.org2.blocledger.com/msp/keystore/)
+  sed $OPTS "s/PEER0_ORG2_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  PRIV_KEY=$(ls crypto-config/peerOrganizations/org2.blocledger.com/peers/peer1.org2.blocledger.com/msp/keystore/)
+  sed $OPTS "s/PEER1_ORG2_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
 }
 
 function generateArtifacts () {
@@ -84,14 +90,14 @@ function generateArtifacts () {
 	echo "#########  Generating Orderer Genesis block ##############"
 	echo "##########################################################"
 	export FABRIC_CFG_PATH=$PWD
-	./$os_arch/bin/configtxgen -profile OneOrgGenesis -outputBlock orderer.block
+	./$os_arch/bin/configtxgen -profile TwoOrgGenesis -outputBlock orderer.block
 	echo
 	echo
 
 	echo "#################################################################"
 	echo "### Generating channel configuration transaction 'channel.tx' ###"
 	echo "#################################################################"
-	./$os_arch/bin/configtxgen -profile OneOrgChannel -outputCreateChannelTx channel.tx -channelID $CH_NAME
+	./$os_arch/bin/configtxgen -profile TwoOrgChannel -outputCreateChannelTx channel.tx -channelID $CH_NAME
 	echo
 	echo
 
