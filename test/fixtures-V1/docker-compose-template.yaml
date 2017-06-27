@@ -24,19 +24,20 @@ services:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
-      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.block
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/orderer/orderer.block
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/orderer/msp
       # enabled TLS
       - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/msp/keystore/ORDERER_PRIVATE_KEY
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/msp/signcerts/orderer.blocledger.com-cert.pem
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/msp/cacerts/ca.blocledger.com-cert.pem]
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/orderer/tls/ca.crt, /etc/hyperledger/crypto/peerOrg1/tls/ca.crt]
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: orderer
     volumes:
-    - ./orderer.block:/var/hyperledger/orderer/orderer.block
-    - ./crypto-config/ordererOrganizations/blocledger.com/orderers/orderer.blocledger.com:/var/hyperledger/orderer
+    - ./orderer.block:/etc/hyperledger/orderer/orderer.block
+    - ./crypto-config/ordererOrganizations/blocledger.com/orderers/orderer.blocledger.com:/etc/hyperledger/orderer
+    - ./crypto-config/peerOrganizations/org1.blocledger.com/peers/peer0.org1.blocledger.com/:/etc/hyperledger/crypto/peerOrg1
     ports:
       - 7050:7050
     depends_on:
@@ -66,14 +67,16 @@ services:
       # are not doing mutual TLS
       - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
       - CORE_PEER_PROFILE_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/peer0.org1.blocledger.com-cert.pem
-      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/PEER0_ORG1_PRIVATE_KEY
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/ca.org1.blocledger.com-cert.pem
+      - CORE_PEER_LOCALMSPDIR=/etc/hyperledger/fabric/msp
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start --peer-defaultchain=false
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/org1.blocledger.com/peers/peer0.org1.blocledger.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/org1.blocledger.com/peers/peer0.org1.blocledger.com/tls:/etc/hyperledger/fabric/tls
     ports:
       - 7051:7051
       - 7053:7053
@@ -88,7 +91,7 @@ services:
       - CORE_PEER_ID=peer1.org1.blocledger.com
       - CORE_PEER_ADDRESS=peer1.org1.blocledger.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.blocledger.com:7051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.blocledger.com:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       # the following setting starts chaincode containers on the same
@@ -105,14 +108,16 @@ services:
       # are not doing mutual TLS
       - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
       - CORE_PEER_PROFILE_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/peer1.org1.blocledger.com-cert.pem
-      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/PEER1_ORG1_PRIVATE_KEY
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/ca.org1.blocledger.com-cert.pem
+      - CORE_PEER_LOCALMSPDIR=/etc/hyperledger/fabric/msp
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start --peer-defaultchain=false
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/org1.blocledger.com/peers/peer1.org1.blocledger.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/org1.blocledger.com/peers/peer1.org1.blocledger.com/tls:/etc/hyperledger/fabric/tls
     ports:
       - 7056:7051
       - 7058:7053
