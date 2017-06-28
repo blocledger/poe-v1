@@ -55,18 +55,6 @@ Organizations:
         # ADMIN and role type MEMBER respectively.
         # AdminPrincipal: Role.MEMBER
 
-        # BCCSP (Blockchain crypto provider): Select which crypto implementation or
-        # library to use
-        BCCSP:
-            Default: SW
-            SW:
-                Hash: SHA2
-                Security: 256
-                # Location of Key Store. If this is unset, a location will
-                # be chosen using 'MSPDir'/keystore
-                FileKeyStore:
-                    KeyStore:
-
     - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
@@ -82,18 +70,6 @@ Organizations:
         # Role.MEMBER are accepted, which indicates a principal of role type
         # ADMIN and role type MEMBER respectively.
         # AdminPrincipal: Role.ADMIN
-
-        # BCCSP (Blockchain crypto provider): Select which crypto implementation or
-        # library to use
-        BCCSP:
-            Default: SW
-            SW:
-                Hash: SHA2
-                Security: 256
-                # Location of Key Store. If this is unset, a location will
-                # be chosen using 'MSPDir'/keystore
-                FileKeyStore:
-                    KeyStore:
 
         AnchorPeers:
             # AnchorPeers defines the location of peers which can be used
@@ -130,7 +106,7 @@ Orderer: &OrdererDefaults
 
         # Absolute Max Bytes: The absolute maximum number of bytes allowed for
         # the serialized messages in a batch.
-        AbsoluteMaxBytes: 99 MB
+        AbsoluteMaxBytes: 98 MB
 
         # Preferred Max Bytes: The preferred maximum number of bytes allowed for
         # the serialized messages in a batch. A message larger than the preferred

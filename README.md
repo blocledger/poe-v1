@@ -35,15 +35,9 @@ The instructions below assume that you already have docker installed and running
 
 ### Pull images from DockerHub
 
-Pull the fabric chaincode environment image using the x86_64-1.0.0-alpha tag.
+Pull the fabric chaincode environment image using the x86_64-1.0.0-rc1 tag.
 ```
-docker pull hyperledger/fabric-ccenv:x86_64-1.0.0-beta
-```
-Next give the fabric-ccenv the 'latest' tag so that software can use it.
-Replace the image ID (4ac07a26ca7a) in the example command with the image ID
-from your version of the fabric-ccenv.
-```
-docker tag 4ac07a26ca7a hyperledger/fabric-ccenv:latest
+docker pull hyperledger/fabric-ccenv:x86_64-1.0.0-rc1
 ```
 
 ### Initial network setup

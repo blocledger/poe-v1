@@ -156,9 +156,11 @@ HFC.newDefaultKeyValueStore({
 
   // jscs:disable maximumLineLength
   debug('create a user based on the cert for org1 admin');
-  let data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/tls/', 'server.key'));
+  let filename = fs.readdirSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/msp/keystore/'))[0];
+  let data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/msp/keystore/', filename));
   let keyPEM = Buffer.from(data).toString();
-  data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/tls/', 'server.crt'));
+  filename = fs.readdirSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/msp/signcerts/'))[0];
+  data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/peerOrganizations/org1.blocledger.com/users/Admin@org1.blocledger.com/msp/signcerts/', filename));
   let certPEM = Buffer.from(data).toString();
   // jscs:enable maximumLineLength
 
@@ -238,11 +240,12 @@ HFC.newDefaultKeyValueStore({
   };
 
   debug('============  calling createChannel =====================');
-  return Q.allSettled([client.createChannel(request), ehPromise]);
+  return Q.all([client.createChannel(request), ehPromise]);
 })
 .then(function(result) {
   debug('--------------------------------------------');
-  debug('Channel created ', result);
+  debug('Channel created ');
+  debug(result);
   eventhub.disconnect();
 
   channel = client.newChannel(config.channelId);
@@ -270,9 +273,11 @@ HFC.newDefaultKeyValueStore({
 
   // jscs:disable maximumLineLength
   debug('create a user based on the cert for the orderer admin');
-  let data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/ordererOrganizations/blocledger.com/users/Admin\@blocledger.com/tls/', 'server.key'));
+  let filename = fs.readdirSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/ordererOrganizations/blocledger.com/users/Admin\@blocledger.com/msp/keystore/'))[0];
+  let data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/ordererOrganizations/blocledger.com/users/Admin\@blocledger.com/msp/keystore/', filename));
   let keyPEM = Buffer.from(data).toString();
-  data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/ordererOrganizations/blocledger.com/users/Admin\@blocledger.com/tls/', 'server.crt'));
+  filename = fs.readdirSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/ordererOrganizations/blocledger.com/users/Admin\@blocledger.com/msp/signcerts/'))[0];
+  data = fs.readFileSync(path.join(__dirname, '/test/fixtures-V1/crypto-config/ordererOrganizations/blocledger.com/users/Admin\@blocledger.com/msp/signcerts/', filename));
   let certPEM = Buffer.from(data).toString();
   // jscs:enable maximumLineLength
 
