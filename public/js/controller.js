@@ -42,27 +42,6 @@ var activeUser;
       }
     });
 
-    $scope.deploy = function() {
-      $scope.showAlert = false;
-      $scope.alertMsg = '';
-      $scope.showErrorAlert = false;
-      $scope.alertErrorMsg = '';
-      $scope.showInfo = true;
-      $scope.infoMsg = 'Please wait, processing the chaincode deploy ' +
-      'request may take a couple minutes.';
-      $http.get(baseUrl + '/deploy').then(function(response) {
-        console.log('request deploy');
-        $scope.showInfo = false;
-        $scope.infoMsg = '';
-        $scope.showAlert = true;
-        $scope.alertMsg = response.data;
-      }, function(response) {
-        $scope.showInfo = false;
-        $scope.infoMsg = '';
-        $scope.showErrorAlert = true;
-        $scope.alertErrorMsg = response.data;
-      });
-    };
   }]).directive('admin', function() {
     return {
       controller: 'adminCtrl',
