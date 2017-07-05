@@ -20,33 +20,35 @@ limitations under the License.
 process.env.NODE_ENV = 'production';
 process.env.UV_THREADPOOL_SIZE = 64;
 
+var HFC = require('fabric-client');
+
 var app = require('express')();
 var morgan = require('morgan');
 var bodyparser = require('body-parser');
 var atob = require('atob');
 var path = require('path');
 var fs = require('fs');
-var util = require('./util.js');
+// var util = require('./util.js');
 var Q = require('q');
 var debug = require('debug')('poe');
 var rest = require('rest');
 var mime = require('rest/interceptor/mime');
 var errorCode = require('rest/interceptor/errorCode');
 var restClient = rest.wrap(mime).wrap(errorCode, {code: 400});
-var config = require('./configuration.js');
+// var config = require('./configuration.js');
 var GlobalAppUser = {};
 var request = require('request');
 var rp = require('request-promise-native');
 var sa = require('superagent');
-var init = require('./initialize.js');
-var sdkInterface = require('./sdkInterface');
-var poeRouter = require('./poeRouter.js'); // POE middleware to handle all of the POE REST endpoints
+// var init = require('./initialize.js');
+// var sdkInterface = require('./sdkInterface');
+// var poeRouter = require('./poeRouter.js'); // POE middleware to handle all of the POE REST endpoints
 var sha = require('js-sha256');
 
-var newUser = util.newUser;
+// var newUser = util.newUser;
 var PwStr = 'Pw!';
 
-app.set('port', (process.env.PORT || 3000));
+app.set('port', (process.env.PORT || 3001));
 
 var chainHeight = 1;
 var blockList = [];
@@ -55,17 +57,38 @@ var blockList = [];
 process.env.GOPATH = path.join(__dirname, 'chaincode');
 debug(process.env.GOPATH);
 
-// Confidentiality setting
-var confidentialSetting = config.confidentialSetting;
+var networkId = 'poe-comp';
 
-// Store the exports from initialize.js in global variables
-var GlobalAppUser = init.GlobalAppUser;
+var store;
+var kvsPath = './tmp/keyValStore_' + networkId;
 
-var cred = config.cred;
+HFC.newDefaultKeyValueStore({
+  path: kvsPath
+})
+.then(function(result) {
+  debug('the store is...', result);
+  var store = result;
+  return store.getValue('appUsers');
+})
+.then(function(value) {
+  var users;
+
+  if (value) {
+    try {
+      users = JSON.parse(value);
+    } catch (e) {
+      debug('Error in appUsers file');
+      users = [];
+    }
+    users.forEach(function(appUser) {
+      GlobalAppUser[appUser.userName] = appUser;
+    });
+  }
+});
 
 // setup the sdk interface
-var retrySdkInvoke = sdkInterface.retrySdkInvoke;
-var retrySdkQuery = sdkInterface.retrySdkQuery;
+// var retrySdkInvoke = sdkInterface.retrySdkInvoke;
+// var retrySdkQuery = sdkInterface.retrySdkQuery;
 
 app.use(morgan('dev'));
 app.use(require('express').static(__dirname + '/public'));
@@ -78,23 +101,11 @@ app.use(require('cookie-session')({
 }));
 bodyparser.urlencoded({extended: true});
 
-app.use('/', poeRouter);  // handle the POE REST endpoint routes
+// app.use('/', poeRouter);  // handle the POE REST endpoint routes
 
 app.get('/', function(req, res) {
   debug('Display basic home page.');
   res.sendfile('./public/' + 'index.html');
-});
-
-// provide an endpoint that will deploy the chaincode
-app.get('/deploy', function(req, res) {
-  // check to see if the user is enrolled
-  var appUser = GlobalAppUser[req.session.appUser];
-  if (!appUser) {
-    console.log('Deploy failed. No user present.');
-    return res.status(500).send('Deploy failed. No user present.');
-  }
-
-  sdkInterface.deploy(req, res);
 });
 
 app.get('/activeUser', function(req, res) {
@@ -107,24 +118,6 @@ app.get('/activeUser', function(req, res) {
 
 app.put('/resetUser', function(req, res) {
   res.send('Click to log in');
-});
-
-app.get('/chain/transactions/:id', function(req, res) {
-  console.log('Get a transaction by ID: ' + req.params.id);
-  var appUser = GlobalAppUser[req.session.appUser];
-  init.client.setUserContext(appUser.hfcUser, true)
-  .then(function(user) {
-    console.log('user is ', user.getName());
-    return init.channel.queryTransaction(req.params.id);
-  })
-  .then(function(result) {
-    debug(result);
-    res.json(result);
-  })
-  .catch(function(err) {
-    console.log(err);
-    res.status(500).send(err.msg);
-  });
 });
 
 app.get('/adminPriv', function(req, res) {
@@ -209,19 +202,29 @@ app.post('/login', function(req, res) {
 function writeUsers() {
   var users = [];
   var appUserStr;
-  let store = init.client.getStateStore();
-  Object.keys(GlobalAppUser).forEach(function(userName) {
-    let usr = GlobalAppUser[userName];
-    let newUsr = {userName: usr.userName, pwHash: usr.pwHash,
-      userType: usr.userType};
-    users.push(newUsr);
+  var store;
+  var kvsPath = './tmp/keyValStore_' + networkId;
+
+  HFC.newDefaultKeyValueStore({
+    path: kvsPath
+  })
+  .then(function(result) {
+    debug('the store is...', result);
+    store = result;
+
+    Object.keys(GlobalAppUser).forEach(function(userName) {
+      let usr = GlobalAppUser[userName];
+      let newUsr = {userName: usr.userName, pwHash: usr.pwHash,
+        userType: usr.userType};
+      users.push(newUsr);
+    });
+    try {
+      appUserStr = JSON.stringify(users) + '\n';
+    } catch (e) {
+      console.log('stringify error: ' + e);
+    }
+    return store.setValue('appUsers', appUserStr);
   });
-  try {
-    appUserStr = JSON.stringify(users) + '\n';
-  } catch (e) {
-    console.log('stringify error: ' + e);
-  }
-  return store.setValue('appUsers', appUserStr);
 }
 
 app.post('/addUser', function(req, res) {
@@ -252,7 +255,7 @@ app.post('/addUser', function(req, res) {
 
   var user = {userName: userName, pwHash: pwHash, userType: userType};
   GlobalAppUser[userName] = user;
-  newUser(user);
+  // newUser(user);
 
   writeUsers();
 

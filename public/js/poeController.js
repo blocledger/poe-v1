@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//var baseUrl = 'http://localhost:5000';
+var composerUrl = 'http://localhost:3000/api';
 var baseUrl = '.';
 
 (function() {
@@ -60,11 +60,12 @@ var baseUrl = '.';
       $scope.alertErrorMsg = '';
 
       var params = {
+        '$class': 'com.blocledger.poe.Doc',
         'hash': $scope.hash,
         'name': $scope.fileName,
         'owner': $scope.owner
       };
-      $http.post(baseUrl + '/addDoc', params).then(function(response) {
+      $http.post(composerUrl + '/Doc', params).then(function(response) {
         console.log(response);
         if (response.data) {
           console.log(response.data);
@@ -151,7 +152,7 @@ var baseUrl = '.';
         return hashValid;
       }
       if (verifyHash($scope.hash) === true) {
-        $http.get(baseUrl + '/verifyDoc/' + $scope.hash)
+        $http.get(composerUrl + '/Doc/' + $scope.hash)
         .then(function(response) {
           console.log(response);
           if (response.data) {
@@ -161,12 +162,12 @@ var baseUrl = '.';
             } else {
               $scope.showAlert = true;
               $scope.alertMsg = 'Document found in the blockchain.';
-              $scope.fileName = response.data.Name;
-              $scope.owner = response.data.Owner;
-              var milliseconds = response.data.Date.Seconds * 1000 +
-              response.data.Date.Nanos / 1000000;
-              $scope.date = $filter('date')(milliseconds, 'medium');
-              $scope.tx = response.data.TxID;
+              $scope.fileName = response.data.name;
+              $scope.owner = response.data.owner;
+              // var milliseconds = response.data.Date.Seconds * 1000 +
+              // response.data.Date.Nanos / 1000000;
+              // $scope.date = $filter('date')(milliseconds, 'medium');
+              // $scope.tx = response.data.TxID;
             }
           }
         }, function(response) {
@@ -196,14 +197,14 @@ var baseUrl = '.';
 
     console.log('Get the document list');
     $scope.docList = [];
-    $http.get(baseUrl + '/listDoc')
+    $http.get(composerUrl + '/Doc')
     .then(function(response) {
       console.log(response);
       // convert the doc info from string to object
-      for (var hash in response.data) {
-        var doc = JSON.parse(response.data[hash]);
-        response.data[hash] = doc;
-      }
+      // for (var hash in response.data) {
+      //   var doc = JSON.parse(response.data[hash]);
+      //   response.data[hash] = doc;
+      // }
       $scope.docList = response.data;
     });
 
@@ -227,14 +228,14 @@ var baseUrl = '.';
       });
       modalInstance.result.then(function() {  //Do this if the user selects the OK button
         var params = {
-          'hash': doc.Hash,
+          'hash': doc.hash,
         };
-        $http.post(baseUrl + '/delDoc', params)
+        $http.delete(composerUrl + '/Doc/' + doc.hash)
         .then(function(response) {
-          console.log('document %s deleted', doc.Hash);
+          console.log('document %s deleted', doc.hash);
           //  refresh the list...
           var newList = $scope.docList;
-          delete newList[doc.Hash];
+          delete newList[doc.hash];
           $scope.doclist = newList;
         });
       }, function() {
@@ -257,15 +258,17 @@ var baseUrl = '.';
       modalInstance.result.then(function(doc) {  //Do this if the user selects the OK button
         console.log(doc);
         var params = {
-          'hash': doc.Hash,
-          'owner': doc.Owner
+          '$class': 'com.blocledger.poe.DocTransfer',
+          'doc': doc.hash,
+          'newOwner': doc.owner
         };
-        $http.post(baseUrl + '/editDoc', params)
+        console.log(params);
+        $http.post(composerUrl + '/DocTransfer', params)
         .then(function(response) {
-          console.log('document %s has changed', doc.Hash);
+          console.log('document %s has changed', doc.hash);
           //  refresh the list...
           var newList = $scope.docList;
-          newList[doc.Hash] = doc;
+          newList[doc.hash] = doc;
           $scope.doclist = newList;
         });
       }, function() {
@@ -296,12 +299,12 @@ var baseUrl = '.';
   myApp.controller('editModalCtrl', ['$scope', '$uibModalInstance', 'doc',
   function($scope, $uibModalInstance, doc) {
     console.log('In editModalCtrl');
-    $scope.owner = doc.Owner;
+    $scope.owner = doc.owner;
     $scope.editDoc = doc;
 
     $scope.ok = function() {
       console.log('ok button pressed');
-      $scope.editDoc.Owner = $scope.owner;
+      $scope.editDoc.owner = $scope.owner;
       $uibModalInstance.close($scope.editDoc);
     };
     $scope.cancel = function() {

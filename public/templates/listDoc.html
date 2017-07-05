@@ -8,18 +8,18 @@
         <th class="col-sm-2">Hash</th>
         <th class="col-sm-2">File Name</th>
         <th class="col-sm-1">Owner</th>
-        <th class="col-sm-1">Date</th>
-        <th class="col-sm-1">Tx ID</th>
+        <!--<th class="col-sm-1">Date</th>-->
+        <!--<th class="col-sm-1">Tx ID</th>-->
         <th class="col-sm-2"></th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="(hash, doc) in docList" >
-        <td class="col-sm-2 " uib-popover="{{ doc.Hash }}" popover-placement="right" popover-append-to-body="true"><samp>{{ doc.Hash }}</samp></td>
-        <td>{{ doc.Name }}</td>
-        <td>{{ doc.Owner }}</td>
-        <td>{{doc.Date.Seconds * 1000 + doc.Date.Nanos / 1000000 | date:'medium'}}</td>
-        <td><a href="" data-toggle="modal" data-target="#myModal" ng-click="popup(doc.TxID)">{{ doc.TxID  }}</a></td>
+        <td class="col-sm-2 " uib-popover="{{ doc.Hash }}" popover-placement="right" popover-append-to-body="true"><samp>{{ doc.hash }}</samp></td>
+        <td>{{ doc.name }}</td>
+        <td>{{ doc.owner }}</td>
+        <!--<td>{{doc.Date.Seconds * 1000 + doc.Date.Nanos / 1000000 | date:'medium'}}</td>-->
+        <!--<td><a href="" data-toggle="modal" data-target="#myModal" ng-click="popup(doc.TxID)">{{ doc.TxID  }}</a></td>-->
         <td>
           <button class="btn btn-info" ng-click="edit(doc)">Edit</button>
           <button class="btn btn-danger" ng-click="delete(doc)">Delete</button>
