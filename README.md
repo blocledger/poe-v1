@@ -43,7 +43,16 @@ Start the REST server the test network
 ```
 composer-rest-server -p hlfv1 -n poe-network -i admin -s adminpw -N never
  ```
-### Running the application
+
+### Create participants in Composer
+
+Using a browser go to the page at `localhost:3000/explorer/` which provides a 'swagger' interface.
+
+In the DocOwner section use POST to add new participants that can own documents.
+
+If you are planning on running the test add two DocOwners named `Alice` and `Bob`.
+
+### Running the POE application
 
 ```
 node api.js
