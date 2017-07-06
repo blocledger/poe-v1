@@ -1,6 +1,6 @@
 # Proof of Existence
 
-This project demonstrates using the Hyperledger Fabric blockchain to store a document
+This project demonstrates using the Hyperledger Composer to store a document
 hash so that its existence can be later proved through transaction queries.
 
 ## Requirements
@@ -9,14 +9,13 @@ hash so that its existence can be later proved through transaction queries.
 * Docker Compose - v1.8 or higher
 * node - v6.9.5
 * Git client
-* Windows needs OpenSSL installed into C:/OpenSSL-Win64
-  * Goto https://slproweb.com/products/Win32OpenSSL.html and pick the full Win64 package
+* Windows is not supported by Composer
 
 ## Installation
 
-`git clone https://github.com/ghaskins/hyperledger-fabric-alpha2-challenge.git`
+`git clone https://github.com/blocledger/poe-alpha2.git`
 
-`cd hyperledger-fabric-alpha2-challenge/blocledger/poe`
+`cd poe-alpah2`
 ```
 npm install -g gulp
 npm install -g mocha
@@ -24,45 +23,25 @@ npm install -g bower
 npm install
 ```
 
-## Setting up a test blockchain using Docker
+## Setting up a test blockchain using Composer
 
-A Hyperledger Fabric blockchain network can be run on your local machine
-using docker containers.  The configuration and setup files will build a network
-that consists of one orderer, two peers, and one CA.
+Follow the instructions for installing and starting the Hyperledger Composer development network found at:
+`https://hyperledger.github.io/composer/installing/development-tools.html`
 
-The instructions below assume that you already have docker installed and running.
+### Deploy the POE Business Network Archive (BNA) file to the test network
 
-
-### Pull images from DockerHub
-
-Pull the fabric chaincode environment image using the x86_64-1.0.0-rc1 tag.
+Make sure you are currenting in the POE directory 
 ```
-docker pull hyperledger/fabric-ccenv:x86_64-1.0.0-rc1
+cd ./poe-alpha2
 ```
-
-### Initial network setup
-
-Run the network setup script which will download the rest of the docker images,
-build docker-compose.yaml, create all certificates, and build the genesis block.
+Use composer to deplay the POE bna file.
 ```
-cd test/fixtures-V1
-./network_setup.sh up mychannel
-```
-To check that the containers are running
-```
-docker ps
-```
-To see what version peer you are running
-```
-docker exec -it peer0.org1.blocledger.com bash
-peer --version
-exit
+composer network deploy -a poe-network.bna -p hlfv1 -i PeerAdmin -s randomString
 ```
 
-Go back to the top poe directory and create the channel
+Start the REST server the test network
 ```
-cd ../..
-node createChannel.js
+composer-rest-server -p hlfv1 -n poe-network -i admin -s adminpw -N never
  ```
 ### Running the application
 
@@ -70,46 +49,45 @@ node createChannel.js
 node api.js
 ```
 Once the application is running launch the web interface
-using localhost:3000 as the URL.  Once it's up go to
+using localhost:3001 as the URL.  Once it's up go to
 /Admin/Add User/ and add a user such as `test@blocledger.com` with a password
 of your choice.
 
 Once the user has been added, login by clicking on `Click to log in` in the
 upper right corner of the page.
 
-Next click the `Deploy` button on the Admin page to install the poe chaincode.
-
-After the chaincode has been installed documents can be added and verified.
-
 ### Stopping and restarting the network
-To stop the containers
+Follow the instructions provided in the Composer documentation sumerized here
 ```
-cd test/fixures-V1
-docker-compose stop
+cd fabric-tools
+./stopFabric.sh
 ```
 To start the previously created network
 ```
-cd test/fixures-V1
-docker-compose up -d
+cd fabric-tools
+./startFabric.sh
 ```
 
 ### Deleting the network
 Use this procedure to completely delete the network and clean up all of the files
 for a fresh start.
 ```
-ctrl-c the node application
-cd test/fixures-V1
-./network_setup.sh down
-
-rm -r tmp/keyValStore_v1/
+cd fabric-tools
+./stopFabric.sh
+./teardownFabric.sh
 ```
-
+### Create a new network
+After the old network has been stopped and deleted and new can be started.
+```
+cd fabric-tools
+./startFabric.sh
+./createComposerProfile.sh
+```
 ## Testing
 To run both the linter and code style checker run `gulp` with no parameters.
 
 To run testing that will generate transactions and exercise all of the server
 capabilities run `gulp test`.
-> **Note:**  The chaincode needs to be deployed before running the test.
 
 ## Debugging
 Turn additional debug prints with
@@ -121,6 +99,4 @@ export HFC_LOGGING='{"debug": "console"}'
 node api.js
 ```
 ## Acknowledgement
-This project uses the Hyperledger Fabric node
-[SDK](https://github.com/hyperledger/fabric-sdk-node) and its examples to connect to
-Hyperledger Fabric.
+This project uses the Hyperledger Composer and its examples.
