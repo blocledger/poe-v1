@@ -14,9 +14,9 @@ hash so that its existence can be later proved through transaction queries.
 
 ## Installation
 
-`git clone https://github.com/ghaskins/hyperledger-fabric-alpha2-challenge.git`
+`git clone https://github.com/blocledger/poe-alpha2.git`
 
-`cd hyperledger-fabric-alpha2-challenge/blocledger/poe`
+`cd poe-alpha2`
 ```
 npm install -g gulp
 npm install -g mocha
