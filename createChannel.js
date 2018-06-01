@@ -55,8 +55,6 @@ debug('=============================================================');
 var ca = new FabricCAServices(cred.cas[0].api_url, tlsOptions, '', cryptoSuite);  // Create a new CA
 var targets = [];
 var channel = {};
-var eventhub;
-var ehtxid;
 
 // Add orderer
 // var caRootsPath = cred.orderers[0].tls_cacerts;
@@ -191,45 +189,9 @@ HFC.newDefaultKeyValueStore({
   var signature = client.signChannelConfig(channelConfig);
   var signatures = [];
   signatures.push(signature);
-  let txId = client.newTransactionID();
-  ehtxid = txId.getTransactionID();
+  let txId = client.newTransactionID(true);
 
   // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-  // set up the event hub
-  debug('Connecting the event hub');
-  eventhub = new EventHub(client);
-  eventhub.setPeerAddr(
-    cred.peers[0].event_url,
-    {
-      pem: cred.peers[0].tls_cacerts,
-      'ssl-target-name-override': cred.peers[0].common_name
-    }
-  );
-  eventhub.connect();
-  // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
-
-  let ehPromise = new Promise(function(resolve, reject) {
-    let handle = setTimeout(function() {
-      eventhub.unregisterTxEvent(ehtxid);
-      reject(new Error('Event hub timed out.'));
-    }, 10000);
-    debug('registering for the Tx event');
-
-    // Setup event hug to listen for results
-    eventhub.registerTxEvent(ehtxid, function(txid, code) {
-      clearTimeout(handle);
-      eventhub.unregisterTxEvent(txid);
-
-      if (code !== 'VALID') {
-        debug('Transaction failed event hub reported:', code);
-        return reject(new Error('Event hub status return: ' + code));
-      } else {
-        debug('received a VALID status from the event hub for ', txid);
-        return resolve({status: code});
-      }
-    });
-  });
-
   // Create the new form for request...
   request = {
     name: config.channelId,
@@ -240,13 +202,12 @@ HFC.newDefaultKeyValueStore({
   };
 
   debug('============  calling createChannel =====================');
-  return Q.all([client.createChannel(request), ehPromise]);
+  return client.createChannel(request);
 })
 .then(function(result) {
   debug('--------------------------------------------');
   debug('Channel created ');
   debug(result);
-  eventhub.disconnect();
 
   channel = client.newChannel(config.channelId);
   channel.addOrderer(orderer);
@@ -256,17 +217,18 @@ HFC.newDefaultKeyValueStore({
   debug('channel name', channel.getName());
   debug('orderers', channel.getOrderers());
 
-  debug('----------calling getChannelConfig after createChannel succeeded -----------');
-  return channel.getChannelConfig();
+  debug('---------- createChannel succeeded -----------');
+  // delay to allow createChannel to complete
+  return Q.delay(10000);
 }, function(err) {
   debug('Error creating channel, maybe it is already created, try building it');
   debug(err);
-  eventhub.disconnect();
 
   channel = client.newChannel(config.channelId);
   channel.addOrderer(orderer);
-  debug('----------calling getChannelConfig after createChannel fails -----------');
-  return channel.getChannelConfig();
+  debug('---------- createChannel fails -----------');
+  // delay to allow createChannel to complete
+  return Q.delay(10000);
 })
 .then(function(result) {
   debug('channel config', result);

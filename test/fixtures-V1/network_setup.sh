@@ -102,7 +102,7 @@ function networkUp () {
         # channel configuration transaction and Also generate a docker-compose file
         generateArtifacts
         export ARCH_TAG=$(uname -m)
-	CHANNEL_NAME=$CH_NAME docker-compose -f $COMPOSE_FILE up -d 2>&1
+	CHANNEL_NAME=$CH_NAME COMPOSE_PROJECT_NAME=poe docker-compose -f $COMPOSE_FILE up -d 2>&1
 	if [ $? -ne 0 ]; then
 		echo "ERROR !!!! Unable to pull the images "
 		exit 1

@@ -5,9 +5,9 @@ hash so that its existence can be later proved through transaction queries.
 
 ## Requirements
 
-* Docker - v1.12 or higher
-* Docker Compose - v1.8 or higher
-* node - v6.9.5
+* Docker - 18.03.1-ce or higher
+* Docker Compose - v1.21.1 or higher
+* node - v8.10.0
 * Git client
 * Windows needs OpenSSL installed into C:/OpenSSL-Win64
   * Goto https://slproweb.com/products/Win32OpenSSL.html and pick the full Win64 package
@@ -35,9 +35,9 @@ The instructions below assume that you already have docker installed and running
 
 ### Pull images from DockerHub
 
-Pull the fabric chaincode environment image using the x86_64-1.0.0 tag.
+Pull the fabric chaincode environment image using the x86_64-1.1.0 tag.
 ```
-docker pull hyperledger/fabric-ccenv:x86_64-1.0.0
+docker pull hyperledger/fabric-ccenv:x86_64-1.1.0
 ```
 
 ### Initial network setup
@@ -101,6 +101,7 @@ ctrl-c the node application
 cd test/fixures-V1
 ./network_setup.sh down
 
+cd ../..
 rm -r tmp/keyValStore_v1/
 ```
 

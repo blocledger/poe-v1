@@ -2,9 +2,10 @@ version: '2'
 
 services:
   ca.blocledger.com:
-    image: hyperledger/fabric-ca:x86_64-1.0.0
+    image: hyperledger/fabric-ca:x86_64-1.1.0
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.blocledger.com
       - FABRIC_CA_SERVER_TLS_ENABLED=true
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.blocledger.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA_PRIVATE_KEY
@@ -19,7 +20,7 @@ services:
 
   orderer.blocledger.com:
     container_name: orderer.blocledger.com
-    image: hyperledger/fabric-orderer:x86_64-1.0.0
+    image: hyperledger/fabric-orderer:x86_64-1.1.0
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -46,17 +47,17 @@ services:
 
   peer0.org1.blocledger.com:
     container_name: peer0.org1.blocledger.com
-    image: hyperledger/fabric-peer:x86_64-1.0.0
+    image: hyperledger/fabric-peer:x86_64-1.1.0
     environment:
       - CORE_PEER_ID=peer0.org1.blocledger.com
       - CORE_PEER_ADDRESS=peer0.org1.blocledger.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.blocledger.com:7051
-      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_LOCALMSPID=org1MSP
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       # the following setting starts chaincode containers on the same
       # bridge network as the peers
       # https://docs.docker.com/compose/networking/
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fixturesv1_default
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=poe_default
       #- CORE_LOGGING_LEVEL=ERROR
       - CORE_LOGGING_LEVEL=DEBUG
       - CORE_PEER_TLS_ENABLED=true
@@ -72,7 +73,7 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: peer node start --peer-defaultchain=false
+    command: peer node start
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/org1.blocledger.com/peers/peer0.org1.blocledger.com/msp:/etc/hyperledger/fabric/msp
@@ -86,18 +87,18 @@ services:
 
   peer1.org1.blocledger.com:
     container_name: peer1.org1.blocledger.com
-    image: hyperledger/fabric-peer:x86_64-1.0.0
+    image: hyperledger/fabric-peer:x86_64-1.1.0
     environment:
       - CORE_PEER_ID=peer1.org1.blocledger.com
       - CORE_PEER_ADDRESS=peer1.org1.blocledger.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.blocledger.com:7051
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.blocledger.com:7051
-      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_LOCALMSPID=org1MSP
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       # the following setting starts chaincode containers on the same
       # bridge network as the peers
       # https://docs.docker.com/compose/networking/
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fixturesv1_default
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=poe_default
       #- CORE_LOGGING_LEVEL=ERROR
       - CORE_LOGGING_LEVEL=DEBUG
       - CORE_PEER_TLS_ENABLED=true
@@ -113,7 +114,7 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: peer node start --peer-defaultchain=false
+    command: peer node start
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/org1.blocledger.com/peers/peer1.org1.blocledger.com/msp:/etc/hyperledger/fabric/msp
