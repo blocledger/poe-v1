@@ -14,9 +14,9 @@ hash so that its existence can be later proved through transaction queries.
 
 ## Installation
 
-`git clone https://github.com/blocledger/poe-alpha2.git`
+`git clone https://github.com/blocledger/poe-v1.git`
 
-`cd poe-alpha2`
+`cd poe-v1`
 ```
 npm install -g gulp
 npm install -g mocha
