@@ -35,9 +35,9 @@ The instructions below assume that you already have docker installed and running
 
 ### Pull images from DockerHub
 
-Pull the fabric chaincode environment image using the x86_64-1.1.0 tag.
+Pull the fabric chaincode environment image using the 1.2.0 tag.
 ```
-docker pull hyperledger/fabric-ccenv:x86_64-1.1.0
+docker pull hyperledger/fabric-ccenv:1.2.0
 ```
 
 ### Initial network setup
@@ -55,7 +55,7 @@ docker ps
 To see what version peer you are running
 ```
 docker exec -it peer0.org1.blocledger.com bash
-peer --version
+peer version
 exit
 ```
 
@@ -85,12 +85,12 @@ After the chaincode has been installed documents can be added and verified.
 To stop the containers
 ```
 cd test/fixures-V1
-docker-compose stop
+docker-compose -p poe stop
 ```
 To start the previously created network
 ```
 cd test/fixures-V1
-docker-compose up -d
+docker-compose -p poe start
 ```
 
 ### Deleting the network
