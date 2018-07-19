@@ -73,7 +73,7 @@ for (var i = 0; i < cred.peers.length; i++) {
   let peer = client.newPeer(
     cred.peers[i].api_url,
     {
-      'request-timeout': '120000',
+      'request-timeout': 120000,
       pem: cred.peers[i].tls_cacerts,
       'ssl-target-name-override': cred.peers[i].common_name
     }

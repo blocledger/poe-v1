@@ -42,7 +42,7 @@ function deploy(req, res) {
   var client = init.client;
   var channel = init.channel;
   var cred = init.cred;
-  var targets = channel.getPeers();
+  var targets = channel.getPeersForOrg();
   var store = client.getStateStore();
   debug('The first peer is ', targets[0]);
 
@@ -149,7 +149,7 @@ function sdkInvoke(user, invokeRequest) {
   var cred = init.cred;
   var eventhub;
   var ehtxid;
-  var targets = channel.getPeers();
+  var targets = channel.getPeersForOrg();
   var store = client.getStateStore();
   debug(invokeRequest);
 
@@ -274,7 +274,7 @@ function sdkQuery(user, queryRequest, maxRetries) {
   var client = init.client;
   var channel = init.channel;
   var store = client.getStateStore();
-  var targets = channel.getPeers();
+  var targets = channel.getPeersForOrg();
 
   return client.setUserContext(user, true)
   .then(function(user) {
